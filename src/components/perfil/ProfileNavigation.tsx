@@ -11,7 +11,6 @@ export default function ProfileNavigation({
 }: ProfileNavigationProps) {
   const tabs = [
     { id: "personal", label: "Información Personal", icon: "👤" },
-    { id: "artist", label: "Información Artística", icon: "🎵" },
     { id: "security", label: "Seguridad", icon: "🔒" },
   ];
 

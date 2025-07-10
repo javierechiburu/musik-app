@@ -199,34 +199,6 @@ export default function CancionesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header del Dashboard de Canciones */}
-      <div className="bg-gradient-to-r from-blue-900/50 to-cyan-900/50 rounded-lg shadow p-6 border border-blue-500/20">
-        <div className="flex items-center space-x-4 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-              />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-white">Mis Canciones</h2>
-            <p className="text-blue-200">
-              Gestión completa de tracks • Análisis de rendimiento • Chartmetric
-              API
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Navigation */}
       <SongsNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
