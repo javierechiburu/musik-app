@@ -2,18 +2,35 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/config/supabase/supabaseClient';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulación de login - en producción aquí iría la lógica real
-    if (email && password) {
-      router.push('/home');
+    setErrorMessage(''); // Limpia errores anteriores
+
+    if (!email || !password) {
+      setErrorMessage('Debes ingresar email y contraseña.');
+      return;
     }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    console.log('error', error)
+
+    if (error) {
+      setErrorMessage('Credenciales incorrectas o usuario no existe.');
+      return;
+    }
+
+    router.push('/home');
   };
 
   return (
@@ -76,6 +93,10 @@ export default function LoginPage() {
             </a>
           </div>
         </div>
+
+        {errorMessage && (
+          <p className="text-sm text-red-500 font-medium">{errorMessage}</p>
+        )}
 
         <button
           type="submit"
