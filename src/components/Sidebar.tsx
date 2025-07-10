@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const analyticsMenuItems = [
   {
-    name: "Dashboard",
+    name: "Analitica y Metricas",
     href: "/home",
     icon: (
       <svg
@@ -24,8 +24,8 @@ const analyticsMenuItems = [
     ),
   },
   {
-    name: "Artistas",
-    href: "/home/artistas",
+    name: "Mi perfil",
+    href: "/home/perfil",
     icon: (
       <svg
         className="w-5 h-5"
@@ -43,7 +43,7 @@ const analyticsMenuItems = [
     ),
   },
   {
-    name: "Canciones",
+    name: "Mis Canciones",
     href: "/home/canciones",
     icon: (
       <svg
@@ -62,7 +62,7 @@ const analyticsMenuItems = [
     ),
   },
   {
-    name: "Playlists",
+    name: "Mi Equipo Marketing",
     href: "/home/playlists",
     icon: (
       <svg
@@ -81,7 +81,7 @@ const analyticsMenuItems = [
     ),
   },
   {
-    name: "Charts",
+    name: "IA Musica",
     href: "/home/charts",
     icon: (
       <svg
