@@ -1,11 +1,14 @@
 "use client";
 
 interface MarketingNavigationProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  readonly activeTab: string;
+  readonly onTabChange: (tab: string) => void;
 }
 
-export default function MarketingNavigation({ activeTab, onTabChange }: MarketingNavigationProps) {
+export default function MarketingNavigation({
+  activeTab,
+  onTabChange,
+}: MarketingNavigationProps) {
   const tabs = [
     { id: "solicitar", label: "Solicitar Marketing", icon: "📝" },
     { id: "solicitudes", label: "Mis Solicitudes", icon: "📋" },

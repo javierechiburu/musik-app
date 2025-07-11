@@ -91,11 +91,6 @@ export default function TrackListComponent({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-400 text-sm">{index + 1}</span>
-                      {track.chartPosition && (
-                        <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full">
-                          #{track.chartPosition}
-                        </span>
-                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -198,9 +193,6 @@ export default function TrackListComponent({
                         </div>
                         <div className="text-xs text-gray-400">saves</div>
                       </div>
-                      <button className="text-blue-400 hover:text-blue-300 text-xs">
-                        Ver más
-                      </button>
                     </div>
                   </td>
                 </tr>

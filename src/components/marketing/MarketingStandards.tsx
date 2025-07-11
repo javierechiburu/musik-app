@@ -1,18 +1,71 @@
 "use client";
 
-interface MarketingStandardsProps {
-  standards: Array<{
-    platform: string;
-    icon: string;
-    description: string;
-    color: string;
-    terms: string[];
-  }>;
+import { useQuery } from "@tanstack/react-query";
+import { fetchMarketingStandards } from "@/apis/marketingAPI";
+
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+    </div>
+  );
 }
 
-export default function MarketingStandards({
-  standards,
-}: MarketingStandardsProps) {
+function ErrorMessage({
+  error,
+  onRetry,
+}: {
+  readonly error: Error;
+  readonly onRetry: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+      <div className="text-red-500 text-center">
+        <h3 className="text-lg font-semibold mb-2">
+          Error al cargar los estándares
+        </h3>
+        <p className="text-gray-600 mb-4">{error.message}</p>
+        <button
+          onClick={onRetry}
+          className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+        >
+          Reintentar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function MarketingStandards() {
+  const {
+    data: standards,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["marketing-standards"],
+    queryFn: fetchMarketingStandards,
+    staleTime: 30 * 60 * 1000, // 30 minutos (los estándares cambian menos)
+    retry: 2,
+  });
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <ErrorMessage error={error} onRetry={refetch} />;
+  }
+
+  if (!standards || standards.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-gray-500">
+          No se encontraron estándares de marketing
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -50,7 +103,7 @@ export default function MarketingStandards({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {standards.map((standard, index) => (
           <div
-            key={index}
+            key={"s" + index}
             className={`bg-gradient-to-br ${standard.color} border border-opacity-30 rounded-lg p-6`}
           >
             <div className="flex items-center space-x-4 mb-4">
@@ -69,7 +122,10 @@ export default function MarketingStandards({
               </h5>
               <ul className="space-y-2">
                 {standard.terms.map((term, termIndex) => (
-                  <li key={termIndex} className="flex items-start space-x-2">
+                  <li
+                    key={"t" + termIndex}
+                    className="flex items-start space-x-2"
+                  >
                     <span className="text-green-400 mt-1">•</span>
                     <span className="text-sm text-gray-300">{term}</span>
                   </li>

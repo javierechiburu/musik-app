@@ -200,7 +200,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`
+        className={`overflow-y-auto 
         fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-700 z-50
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
@@ -319,18 +319,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             })}
           </div>
         </nav>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">A</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">Administrador</p>
-              <p className="text-xs text-gray-400">admin@fader.com</p>
-            </div>
-          </div>
-        </div>
       </div>
     </>
   );

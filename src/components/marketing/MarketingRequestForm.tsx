@@ -3,11 +3,13 @@
 import { useState } from "react";
 
 interface MarketingRequestFormProps {
-  onSubmit: (formData: any) => void;
+  readonly onSubmit: (formData: any) => void;
+  readonly isLoading?: boolean;
 }
 
 export default function MarketingRequestForm({
   onSubmit,
+  isLoading = false,
 }: MarketingRequestFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -581,10 +583,14 @@ export default function MarketingRequestForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3">
+                <label
+                  htmlFor="budget"
+                  className="block text-sm font-medium text-gray-300 mb-3"
+                >
                   💰 Presupuesto
                 </label>
                 <input
+                  id="budget"
                   type="text"
                   value={formData.budget}
                   onChange={(e) =>
@@ -597,10 +603,14 @@ export default function MarketingRequestForm({
             </div>
 
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-300 mb-3">
+              <label
+                htmlFor="additional_notes"
+                className="block text-sm font-medium text-gray-300 mb-3"
+              >
                 📄 Notas Adicionales
               </label>
               <textarea
+                id="additional_notes"
                 value={formData.additional_notes}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -676,22 +686,31 @@ export default function MarketingRequestForm({
           ) : (
             <button
               type="submit"
-              className="flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
+              disabled={isLoading}
+              className={`flex items-center space-x-2 px-8 py-3 rounded-xl transition-all shadow-lg ${
+                isLoading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700"
+              }`}
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                />
-              </svg>
-              <span>Enviar Solicitud</span>
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  />
+                </svg>
+              )}
+              <span>{isLoading ? "Enviando..." : "Enviar Solicitud"}</span>
             </button>
           )}
         </div>

@@ -3,199 +3,154 @@
 import { useState } from "react";
 import SongsNavigation from "@/components/canciones/SongsNavigation";
 import SongsTabContent from "@/components/canciones/SongsTabContent";
+import { useQuery } from "@tanstack/react-query";
+import {
+  fetchSongsData,
+  type ChartmetricTrackResponse,
+  type ChartmetricPlaylistResponse,
+  type ChartmetricChartResponse,
+  type ChartmetricTrendingResponse,
+} from "@/apis/cancionesAPI";
+
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
+
+function ErrorMessage({
+  error,
+  onRetry,
+}: {
+  error: Error;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
+      <div className="text-red-500 text-center">
+        <h2 className="text-xl font-semibold mb-2">
+          Error al cargar los datos
+        </h2>
+        <p className="text-gray-600 mb-4">{error.message}</p>
+        <button
+          onClick={onRetry}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+        >
+          Reintentar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function transformTracksData(tracks: ChartmetricTrackResponse[]) {
+  return tracks.map((track) => ({
+    id: track.id,
+    title: track.title,
+    album: track.album,
+    releaseDate: track.release_date,
+    duration: track.duration,
+    streams: track.streaming_metrics.total_streams,
+    chartPosition: track.chart_data.current_position,
+    previousPosition: track.chart_data.previous_position,
+    spotifyStreams: track.streaming_metrics.spotify_streams,
+    appleStreams: track.streaming_metrics.apple_streams,
+    youtubeViews: track.streaming_metrics.youtube_views,
+    saves: track.streaming_metrics.saves,
+    isrc: track.isrc,
+    mood: track.mood,
+    genre: track.genre,
+  }));
+}
+
+function transformPlaylistsData(playlists: ChartmetricPlaylistResponse[]) {
+  return playlists.map((playlist) => ({
+    id: playlist.id,
+    playlistName: playlist.playlist_name,
+    platform: playlist.platform,
+    curator: playlist.curator,
+    followers: playlist.followers,
+    trackTitle: playlist.track_title,
+    position: playlist.position,
+    dateAdded: playlist.date_added,
+    streams: playlist.streams,
+    playlistType: playlist.playlist_type,
+    isActive: playlist.is_active,
+  }));
+}
+
+function transformChartsData(charts: ChartmetricChartResponse[]) {
+  return charts.map((chart) => ({
+    id: chart.id,
+    trackTitle: chart.track_title,
+    chartName: chart.chart_name,
+    position: chart.position,
+    previousPosition: chart.previous_position,
+    peakPosition: chart.peak_position,
+    weeksOnChart: chart.weeks_on_chart,
+    country: chart.country,
+    platform: chart.platform,
+    lastUpdated: chart.last_updated,
+    trend: chart.trend,
+  }));
+}
+
+function transformTrendingData(trending: ChartmetricTrendingResponse[]) {
+  return trending.map((trend) => ({
+    id: trend.id,
+    trackTitle: trend.track_title,
+    platform: trend.platform,
+    trendingScore: trend.trending_score,
+    growthPercentage: trend.growth_percentage,
+    viralMoment: trend.viral_moment,
+    hashtags: trend.hashtags,
+    influencerMentions: trend.influencer_mentions,
+    userGeneratedContent: trend.user_generated_content,
+    predictedPeak: trend.predicted_peak,
+    currentMomentum: trend.current_momentum,
+    regions: trend.regions,
+    ageGroup: trend.age_group,
+  }));
+}
 
 export default function CancionesPage() {
   const [activeTab, setActiveTab] = useState("mis-tracks");
 
-  // Mock data for tracks
-  const tracksData = [
-    {
-      id: "1",
-      title: "Midnight Dreams",
-      album: "Neon Nights",
-      releaseDate: "2024-01-15",
-      duration: "3:42",
-      streams: "2.4M",
-      chartPosition: 12,
-      previousPosition: 18,
-      spotifyStreams: "1.8M",
-      appleStreams: "420K",
-      youtubeViews: "180K",
-      saves: "89K",
-      isrc: "USUM71234567",
-      mood: "Melancólico",
-      genre: "Electronic Pop",
-    },
-    {
-      id: "2",
-      title: "Electric Soul",
-      album: "Future Beats",
-      releaseDate: "2024-02-28",
-      duration: "4:15",
-      streams: "1.8M",
-      chartPosition: 25,
-      previousPosition: 32,
-      spotifyStreams: "1.2M",
-      appleStreams: "380K",
-      youtubeViews: "220K",
-      saves: "67K",
-      isrc: "USUM71234568",
-      mood: "Energético",
-      genre: "Electronic",
-    },
-    {
-      id: "3",
-      title: "Stellar Waves",
-      album: "Cosmic Journey",
-      releaseDate: "2024-03-10",
-      duration: "3:28",
-      streams: "3.1M",
-      chartPosition: 8,
-      previousPosition: 15,
-      spotifyStreams: "2.1M",
-      appleStreams: "560K",
-      youtubeViews: "440K",
-      saves: "112K",
-      isrc: "USUM71234569",
-      mood: "Inspirador",
-      genre: "Ambient Electronic",
-    },
-  ];
+  const {
+    data: rawSongsData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["songs-data"],
+    queryFn: () => fetchSongsData(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
 
-  // Mock data for playlists
-  const playlistsData = [
-    {
-      id: "1",
-      playlistName: "Electronic Hits 2024",
-      platform: "Spotify",
-      curator: "Spotify Editorial",
-      followers: "2.4M",
-      trackTitle: "Midnight Dreams",
-      position: 15,
-      dateAdded: "2024-01-20",
-      streams: "890K",
-      playlistType: "editorial" as const,
-      isActive: true,
-    },
-    {
-      id: "2",
-      playlistName: "Future Bass Essentials",
-      platform: "Apple Music",
-      curator: "Apple Music",
-      followers: "1.8M",
-      trackTitle: "Electric Soul",
-      position: 8,
-      dateAdded: "2024-03-01",
-      streams: "567K",
-      playlistType: "editorial" as const,
-      isActive: true,
-    },
-    {
-      id: "3",
-      playlistName: "Chill Electronic Vibes",
-      platform: "YouTube Music",
-      curator: "Independent Creator",
-      followers: "340K",
-      trackTitle: "Stellar Waves",
-      position: 3,
-      dateAdded: "2024-03-15",
-      streams: "234K",
-      playlistType: "user" as const,
-      isActive: true,
-    },
-  ];
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
-  // Mock data for charts
-  const chartsData = [
-    {
-      id: "1",
-      trackTitle: "Midnight Dreams",
-      chartName: "Global Electronic Charts",
-      position: 12,
-      previousPosition: 18,
-      peakPosition: 8,
-      weeksOnChart: 8,
-      country: "Global",
-      platform: "Spotify",
-      lastUpdated: "2024-04-01",
-      trend: "up" as const,
-    },
-    {
-      id: "2",
-      trackTitle: "Electric Soul",
-      chartName: "Dance/Electronic Songs",
-      position: 25,
-      previousPosition: 32,
-      peakPosition: 22,
-      weeksOnChart: 6,
-      country: "Estados Unidos",
-      platform: "Billboard",
-      lastUpdated: "2024-04-01",
-      trend: "up" as const,
-    },
-    {
-      id: "3",
-      trackTitle: "Stellar Waves",
-      chartName: "Electronic Hot 100",
-      position: 8,
-      previousPosition: 15,
-      peakPosition: 5,
-      weeksOnChart: 4,
-      country: "Reino Unido",
-      platform: "Spotify",
-      lastUpdated: "2024-04-01",
-      trend: "up" as const,
-    },
-  ];
+  if (error) {
+    return <ErrorMessage error={error as Error} onRetry={refetch} />;
+  }
 
-  // Mock data for trending
-  const trendingData = [
-    {
-      id: "1",
-      trackTitle: "Midnight Dreams",
-      platform: "TikTok",
-      trendingScore: 92,
-      growthPercentage: "+340%",
-      viralMoment: "Trending con challenge #MidnightVibes",
-      hashtags: ["MidnightVibes", "ElectronicMusic", "DanceChallenge"],
-      influencerMentions: 847,
-      userGeneratedContent: 12400,
-      predictedPeak: "Próxima semana",
-      currentMomentum: "rising" as const,
-      regions: ["US", "UK", "CA", "AU"],
-      ageGroup: "18-24",
-    },
-    {
-      id: "2",
-      trackTitle: "Electric Soul",
-      platform: "Instagram",
-      trendingScore: 78,
-      growthPercentage: "+180%",
-      viralMoment: "Viral en Reels de fitness",
-      hashtags: ["ElectricSoul", "WorkoutMusic", "FitnessMotivation"],
-      influencerMentions: 523,
-      userGeneratedContent: 8900,
-      predictedPeak: "En 3 días",
-      currentMomentum: "peak" as const,
-      regions: ["US", "MX", "BR"],
-      ageGroup: "25-34",
-    },
-    {
-      id: "3",
-      trackTitle: "Stellar Waves",
-      platform: "YouTube",
-      trendingScore: 85,
-      growthPercentage: "+220%",
-      viralMoment: "Usado en videos de relajación",
-      hashtags: ["StellarWaves", "ChillMusic", "Meditation"],
-      influencerMentions: 234,
-      userGeneratedContent: 5600,
-      predictedPeak: "Hace 2 días",
-      currentMomentum: "declining" as const,
-      regions: ["US", "UK", "DE", "FR"],
-      ageGroup: "25-45",
-    },
-  ];
+  if (!rawSongsData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">No se encontraron datos de canciones</p>
+      </div>
+    );
+  }
+
+  const tracksData = transformTracksData(rawSongsData.tracks);
+  const playlistsData = transformPlaylistsData(rawSongsData.playlists);
+  const chartsData = transformChartsData(rawSongsData.charts);
+  const trendingData = transformTrendingData(rawSongsData.trending);
 
   return (
     <div className="space-y-6">

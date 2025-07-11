@@ -1,26 +1,76 @@
 "use client";
 
-interface MarketingRequest {
-  id: string;
-  title: string;
-  tools: string[];
-  budget: string;
-  objective: string;
-  timeline: string;
-  status: "pending" | "approved" | "in_progress" | "completed" | "rejected";
-  createdAt: string;
-  updatedAt: string;
-  progress?: number;
-  notes?: string;
+import { useQuery } from "@tanstack/react-query";
+import { fetchMarketingRequests } from "@/apis/marketingAPI";
+
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
 }
 
-interface MarketingRequestsProps {
-  requests: MarketingRequest[];
+function ErrorMessage({
+  error,
+  onRetry,
+}: {
+  readonly error: Error;
+  readonly onRetry: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+      <div className="text-red-500 text-center">
+        <h3 className="text-lg font-semibold mb-2">
+          Error al cargar las solicitudes
+        </h3>
+        <p className="text-gray-600 mb-4">{error.message}</p>
+        <button
+          onClick={onRetry}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+        >
+          Reintentar
+        </button>
+      </div>
+    </div>
+  );
 }
 
-export default function MarketingRequests({
-  requests = [],
-}: MarketingRequestsProps) {
+export default function MarketingRequests() {
+  const {
+    data: requests,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["marketing-requests"],
+    queryFn: fetchMarketingRequests,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    retry: 2,
+  });
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <ErrorMessage error={error} onRetry={refetch} />;
+  }
+
+  if (!requests || requests.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">
+            No tienes solicitudes de marketing aún
+          </p>
+          <p className="text-gray-400 text-sm">
+            Crea tu primera solicitud desde la pestaña Solicitar
+          </p>
+        </div>
+      </div>
+    );
+  }
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -115,7 +165,7 @@ export default function MarketingRequests({
           },
           {
             status: "approved",
-            count: (requests || []).filter((r) => r?.status === "approved")
+            count: (requests || []).filter((r) => r?.status == "approved")
               .length,
             color: "from-green-900/40 to-green-800/40 border-green-500/30",
           },
