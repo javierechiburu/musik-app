@@ -1,5 +1,3 @@
-import { axiosInstance } from "@/config/axios/axiosInstance";
-
 // Tipos para las solicitudes de marketing
 export interface MarketingRequest {
   id: string;
@@ -8,7 +6,7 @@ export interface MarketingRequest {
   budget: string;
   objective: string;
   timeline: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'rejected';
+  status: "pending" | "in_progress" | "completed" | "rejected" | "approved";
   createdAt: string;
   updatedAt: string;
   progress?: number;
@@ -43,13 +41,14 @@ const mockMarketingRequests: MarketingRequest[] = [
     createdAt: "2024-01-15",
     updatedAt: "2024-01-20",
     progress: 65,
-    notes: "Campaña ejecutándose según lo planificado. Resultados por encima de las expectativas.",
+    notes:
+      "Campaña ejecutándose según lo planificado. Resultados por encima de las expectativas.",
     segmentation: {
       countries: ["Estados Unidos", "México", "España"],
       genders: ["Mujer", "Hombre"],
       ages: ["18-24", "24-34"],
-      genres: ["Pop", "Electronic Pop"]
-    }
+      genres: ["Pop", "Electronic Pop"],
+    },
   },
   {
     id: "2",
@@ -66,8 +65,8 @@ const mockMarketingRequests: MarketingRequest[] = [
       countries: ["Chile", "Argentina", "Colombia"],
       genders: ["Mujer", "Hombre", "No binario"],
       ages: ["24-34", "34-44"],
-      genres: ["Electronic", "Dance"]
-    }
+      genres: ["Electronic", "Dance"],
+    },
   },
   {
     id: "3",
@@ -84,8 +83,8 @@ const mockMarketingRequests: MarketingRequest[] = [
       countries: ["Estados Unidos", "Canadá", "Reino Unido"],
       genders: ["Mujer", "Hombre"],
       ages: ["18-24", "24-34", "34-44"],
-      genres: ["Rock", "Pop Rock", "Alternative"]
-    }
+      genres: ["Rock", "Pop Rock", "Alternative"],
+    },
   },
   {
     id: "4",
@@ -102,8 +101,8 @@ const mockMarketingRequests: MarketingRequest[] = [
       countries: ["Estados Unidos", "México", "Brasil"],
       genders: ["Mujer", "Hombre", "No binario"],
       ages: ["18-24"],
-      genres: ["Pop", "Electronic", "Dance"]
-    }
+      genres: ["Pop", "Electronic", "Dance"],
+    },
   },
 ];
 
@@ -154,7 +153,8 @@ const mockMarketingStandards: MarketingStandard[] = [
   {
     platform: "Spotify Marquee",
     icon: "🎧",
-    description: "Normas y condiciones de Spotify Marquee para cuidar la comunidad",
+    description:
+      "Normas y condiciones de Spotify Marquee para cuidar la comunidad",
     color: "from-green-900/40 to-teal-800/40 border-green-500/30",
     terms: [
       "Solo contenido musical distribuido en Spotify",
@@ -170,88 +170,97 @@ const mockMarketingStandards: MarketingStandard[] = [
 // Función para obtener solicitudes de marketing
 export const fetchMarketingRequests = async (): Promise<MarketingRequest[]> => {
   // Simulación de delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
   // Simulación de error ocasional
   if (Math.random() > 0.9) {
     throw new Error("Error simulado al obtener solicitudes de marketing");
   }
-  
+
   return mockMarketingRequests;
 };
 
 // Función para obtener estándares de marketing
-export const fetchMarketingStandards = async (): Promise<MarketingStandard[]> => {
+export const fetchMarketingStandards = async (): Promise<
+  MarketingStandard[]
+> => {
   // Simulación de delay
-  await new Promise(resolve => setTimeout(resolve, 600));
-  
+  await new Promise((resolve) => setTimeout(resolve, 600));
+
   // Simulación de error ocasional
   if (Math.random() > 0.95) {
     throw new Error("Error simulado al obtener estándares de marketing");
   }
-  
+
   return mockMarketingStandards;
 };
 
 // Función para obtener una solicitud específica
-export const fetchMarketingRequest = async (id: string): Promise<MarketingRequest | null> => {
-  await new Promise(resolve => setTimeout(resolve, 400));
-  
-  const request = mockMarketingRequests.find(req => req.id === id);
+export const fetchMarketingRequest = async (
+  id: string
+): Promise<MarketingRequest | null> => {
+  await new Promise((resolve) => setTimeout(resolve, 400));
+
+  const request = mockMarketingRequests.find((req) => req.id === id);
   return request || null;
 };
 
 // Función para crear una nueva solicitud
-export const createMarketingRequest = async (request: Omit<MarketingRequest, 'id' | 'createdAt' | 'updatedAt'>): Promise<MarketingRequest> => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
+export const createMarketingRequest = async (
+  request: Omit<MarketingRequest, "id" | "createdAt" | "updatedAt">
+): Promise<MarketingRequest> => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   // Simulación de error ocasional
   if (Math.random() > 0.8) {
     throw new Error("Error simulado al crear solicitud de marketing");
   }
-  
+
   const newRequest: MarketingRequest = {
     ...request,
     id: Date.now().toString(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  
+
   // En una aplicación real, esto se guardaría en la base de datos
   mockMarketingRequests.unshift(newRequest);
-  
+
   return newRequest;
 };
 
 // Función para actualizar una solicitud
-export const updateMarketingRequest = async (id: string, updates: Partial<MarketingRequest>): Promise<MarketingRequest> => {
-  await new Promise(resolve => setTimeout(resolve, 600));
-  
-  const index = mockMarketingRequests.findIndex(req => req.id === id);
+export const updateMarketingRequest = async (
+  id: string,
+  updates: Partial<MarketingRequest>
+): Promise<MarketingRequest> => {
+  await new Promise((resolve) => setTimeout(resolve, 600));
+
+  const index = mockMarketingRequests.findIndex((req) => req.id === id);
   if (index === -1) {
     throw new Error("Solicitud no encontrada");
   }
-  
+
   const updatedRequest = {
     ...mockMarketingRequests[index],
     ...updates,
     updatedAt: new Date().toISOString(),
   };
-  
+
   mockMarketingRequests[index] = updatedRequest;
-  
+
   return updatedRequest;
 };
 
 // Función para eliminar una solicitud
 export const deleteMarketingRequest = async (id: string): Promise<boolean> => {
-  await new Promise(resolve => setTimeout(resolve, 400));
-  
-  const index = mockMarketingRequests.findIndex(req => req.id === id);
+  await new Promise((resolve) => setTimeout(resolve, 400));
+
+  const index = mockMarketingRequests.findIndex((req) => req.id === id);
   if (index === -1) {
     throw new Error("Solicitud no encontrada");
   }
-  
+
   mockMarketingRequests.splice(index, 1);
   return true;
 };
