@@ -5,14 +5,15 @@ interface ArtistNavigationProps {
   onTabChange: (tab: string) => void;
 }
 
-export default function ArtistNavigation({ activeTab, onTabChange }: ArtistNavigationProps) {
+export default function ArtistNavigation({
+  activeTab,
+  onTabChange,
+}: ArtistNavigationProps) {
   const tabs = [
-    { id: 'overview', label: 'Resumen', icon: '📊' },
-    { id: 'social', label: 'Redes Sociales', icon: '👥' },
-    { id: 'streaming', label: 'Streaming', icon: '🎵' },
-    { id: 'charts', label: 'Charts', icon: '📈' },
-    { id: 'playlists', label: 'Playlists', icon: '📋' },
-    { id: 'audience', label: 'Audiencia', icon: '🎯' }
+    { id: "overview", label: "Resumen", icon: "📊" },
+    { id: "social", label: "Redes Sociales", icon: "👥" },
+    { id: "streaming", label: "Streaming", icon: "🎵" },
+    { id: "charts", label: "Charts", icon: "📈" },
   ];
 
   return (
@@ -24,8 +25,8 @@ export default function ArtistNavigation({ activeTab, onTabChange }: ArtistNavig
             onClick={() => onTabChange(tab.id)}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? "bg-blue-600 text-white"
+                : "text-gray-300 hover:bg-gray-700 hover:text-white"
             }`}
           >
             <span className="text-lg">{tab.icon}</span>
