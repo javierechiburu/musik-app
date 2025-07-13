@@ -16,7 +16,7 @@ export default function MarketingNavigation({
   ];
 
   return (
-    <div className="bg-gray-800/80 backdrop-blur border border-gray-700/50 rounded-lg p-2 mb-6">
+    <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur border border-gray-700/50 rounded-lg p-2 mb-6">
       <div className="flex flex-wrap gap-2">
         {tabs.map((tab) => (
           <button
@@ -24,7 +24,7 @@ export default function MarketingNavigation({
             onClick={() => onTabChange(tab.id)}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               activeTab === tab.id
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
+                ? "bg-gradient-to-r from-purple-800 to-purple-600 text-white shadow-lg"
                 : "text-gray-400 hover:text-white hover:bg-gray-700/50"
             }`}
           >

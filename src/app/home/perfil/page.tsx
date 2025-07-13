@@ -4,6 +4,7 @@ import { useState } from "react";
 import ProfilePictureUpload from "@/components/perfil/ProfilePictureUpload";
 import ProfileNavigation from "@/components/perfil/ProfileNavigation";
 import ProfileTabContent from "@/components/perfil/ProfileTabContent";
+import HeaderPage from "@/components/ui/HeaderPage";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("personal");
@@ -43,10 +44,10 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       {/* Header del Perfil */}
-      <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-lg shadow p-6 border border-purple-500/20">
-        <div className="flex items-center justify-between">
+      <HeaderPage overlayColor="pink" height="md">
+        <div className="flex items-center justify-between w-full">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-500 rounded-lg flex items-center justify-center">
               <svg
                 className="w-6 h-6 text-white"
                 fill="none"
@@ -89,7 +90,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      </div>
+      </HeaderPage>
 
       {/* Layout Principal del Perfil */}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
@@ -109,13 +110,13 @@ export default function ProfilePage() {
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-purple-800/20 rounded-lg p-3">
-                  <p className="text-2xl font-bold text-purple-400">
+                  <p className="text-lg font-bold text-purple-400">
                     {userData.accountInfo.totalTracks}
                   </p>
                   <p className="text-xs text-gray-400">Tracks</p>
                 </div>
                 <div className="bg-blue-800/20 rounded-lg p-3">
-                  <p className="text-2xl font-bold text-blue-400">
+                  <p className="text-lg font-bold text-blue-400">
                     {userData.accountInfo.totalFollowers.toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-400">Seguidores</p>

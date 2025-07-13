@@ -212,9 +212,15 @@ const createEmailTemplate = (data: MarketingFormData) => {
             <h2>🚀 Herramientas Seleccionadas</h2>
             <div class="section-content">
               <div class="tools-grid">
-                ${selectedTools.map((tool) => `<div class="tool-badge">${tool}</div>`).join("")}
+                ${selectedTools
+                  .map((tool) => `<div class="tool-badge">${tool}</div>`)
+                  .join("")}
               </div>
-              ${selectedTools.length === 0 ? "<p>No se seleccionaron herramientas específicas</p>" : ""}
+              ${
+                selectedTools.length === 0
+                  ? "<p>No se seleccionaron herramientas específicas</p>"
+                  : ""
+              }
             </div>
           </div>
 
@@ -326,6 +332,7 @@ const createEmailTemplate = (data: MarketingFormData) => {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("acaaa");
     // Verificar que la API key esté configurada
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
@@ -344,6 +351,7 @@ export async function POST(request: NextRequest) {
 
     // Parsear los datos del formulario
     const formData: MarketingFormData = await request.json();
+    console.log("acaaa");
 
     // Validar datos mínimos
     if (!formData.tools && !formData.segmentation) {
@@ -383,14 +391,17 @@ Notas adicionales: ${formData.additional_notes || "Ninguna"}
     // Enviar el email con Resend
     // Para desarrollo usar: 'Musik App <onboarding@resend.dev>'
     // Para producción usar: process.env.RESEND_FROM_EMAIL
-    const fromEmail = process.env.NODE_ENV === 'production' 
-      ? process.env.RESEND_FROM_EMAIL || 'noreply@musikapp.com'
-      : 'Musik App <onboarding@resend.dev>';
+    const fromEmail =
+      process.env.NODE_ENV === "production"
+        ? process.env.RESEND_FROM_EMAIL || "noreply@musikapp.com"
+        : "Musik App <onboarding@resend.dev>";
 
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: [process.env.MARKETING_EMAIL_TO],
-      subject: `🎵 Nueva Solicitud de Campaña - ${new Date().toLocaleDateString("es-ES")}`,
+      subject: `🎵 Nueva Solicitud de Campaña - ${new Date().toLocaleDateString(
+        "es-ES"
+      )}`,
       text: textContent,
       html: htmlContent,
       // Agregar tags para tracking (equivalente a categories en SendGrid)

@@ -243,7 +243,7 @@ export default function MarketingRequestForm({
   return (
     <div className="space-y-8">
       {/* Header con progreso mejorado */}
-      <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-xl p-8 border border-purple-500/20">
+      <div className="bg-gradient-to-r from-pink-900/20 to-rose-900/20 rounded-xl p-8 border border-purple-500/20">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -262,10 +262,10 @@ export default function MarketingRequestForm({
               </svg>
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-white">
+              <h2 className="text-xl font-bold text-white">
                 Solicitar Campaña de Marketing
               </h2>
-              <p className="text-purple-200 text-lg">
+              <p className="text-purple-200 text-base">
                 Crea una campaña personalizada para tu música
               </p>
             </div>
@@ -323,7 +323,7 @@ export default function MarketingRequestForm({
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Paso 1: Herramientas */}
         {currentStep === 1 && (
-          <div className="bg-gray-800/80 backdrop-blur border border-gray-700/50 rounded-xl p-8 transition-all duration-500 ease-in-out">
+          <div className="bg-gradient-to-br from-indigo-950/20 to-blue-950/20 backdrop-blur border border-gray-700/50 rounded-xl p-8 transition-all duration-500 ease-in-out">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
@@ -411,7 +411,7 @@ export default function MarketingRequestForm({
 
         {/* Paso 2: Segmentación */}
         {currentStep === 2 && (
-          <div className="bg-gray-800/80 backdrop-blur border border-gray-700/50 rounded-xl p-8 transition-all duration-500 ease-in-out">
+          <div className="bg-gradient-to-br from-indigo-950/20 to-blue-950/20 backdrop-blur border border-gray-700/50 rounded-xl p-8 transition-all duration-500 ease-in-out">
             <div className="flex items-center space-x-4 mb-8">
               <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-2xl">🎯</span>
@@ -566,7 +566,7 @@ export default function MarketingRequestForm({
 
         {/* Paso 3: Información Adicional */}
         {currentStep === 3 && (
-          <div className="bg-gray-800/80 backdrop-blur border border-gray-700/50 rounded-xl p-8 transition-all duration-500 ease-in-out">
+          <div className="bg-gradient-to-br from-indigo-950/20 to-blue-950/20 backdrop-blur border border-gray-700/50 rounded-xl p-8 transition-all duration-500 ease-in-out">
             <div className="flex items-center space-x-4 mb-8">
               <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-2xl">📝</span>
@@ -627,7 +627,7 @@ export default function MarketingRequestForm({
         )}
 
         {/* Botones de navegación */}
-        <div className="flex justify-between items-center bg-gray-800/50 rounded-xl p-6">
+        <div className="flex justify-between items-center bg-gradient-to-br from-indigo-950/20 to-blue-950/20 rounded-xl p-6">
           <button
             type="button"
             onClick={(e) => {

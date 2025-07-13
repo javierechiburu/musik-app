@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 const analyticsMenuItems = [
   {
@@ -104,20 +105,14 @@ const analyticsMenuItems = [
 const userMenuItems = [
   {
     name: "Mi Billetera",
-    href: "/home/mi-distribucion",
+    href: "/home/mi-billetera",
     icon: (
       <svg
-        className="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
+        className="w-5 h-5 text-white"
+        fill="currentColor"
         viewBox="0 0 24 24"
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-        />
+        <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
       </svg>
     ),
   },
@@ -200,22 +195,43 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`overflow-y-auto 
-        fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-700 z-50
+        className={`overflow-y-auto bg-violet-900/30
+        fixed top-0 left-0 h-full w-64 z-50
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:block
       `}
+        style={{
+          borderRight: "1px solid rgba(139, 92, 246, 0.3)",
+          boxShadow: "4px 0 20px rgba(139, 92, 246, 0.15)",
+        }}
       >
-        <div className="p-6 border-b border-gray-700">
+        <div
+          className="p-6"
+          style={{ borderBottom: "1px solid rgba(139, 92, 246, 0.2)" }}
+        >
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white">FADER</h1>
-              <p className="text-sm text-gray-400 mt-1">Contenido musical</p>
+            <div className="rounded-full overflow-hidden shadow-xl backdrop-blur-md">
+              <Image
+                src="/FADER-FOTOPERFIL.jpg"
+                width={100}
+                height={80}
+                alt="logo fader"
+                className="object-cover fade-edges"
+              />
             </div>
             <button
               onClick={onClose}
-              className="lg:hidden text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-800"
+              className="lg:hidden p-2 rounded-lg transition-all duration-200"
+              style={{ color: "#8B5CF6" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#7C3AED";
+                e.currentTarget.style.background = "rgba(139, 92, 246, 0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "#8B5CF6";
+                e.currentTarget.style.background = "transparent";
+              }}
             >
               <svg
                 className="w-5 h-5"
@@ -237,9 +253,16 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <nav className="mt-6 flex-1 overflow-y-auto">
           {/* Analytics Section */}
           <div className="px-3 mb-6">
-            <div className="flex items-center mb-3">
+            <div
+              className="flex items-center mb-3 px-3 py-2 rounded-lg"
+              style={{
+                background: "rgba(139, 92, 246, 0.05)",
+                border: "1px solid rgba(139, 92, 246, 0.2)",
+              }}
+            >
               <svg
-                className="w-4 h-4 text-blue-400 mr-2"
+                className="w-4 h-4 mr-2"
+                style={{ color: "#8B5CF6" }}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -251,7 +274,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                 />
               </svg>
-              <h3 className="text-xs font-semibold text-blue-400 uppercase tracking-wider">
+              <h3
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: "#8B5CF6" }}
+              >
                 Analytics
               </h3>
             </div>
@@ -262,16 +288,47 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   key={item.name}
                   href={item.href}
                   onClick={onClose}
-                  className={`flex items-center px-3 py-3 mb-1 rounded-lg transition-colors duration-200 ${
+                  className="flex items-center px-3 py-3 mb-1 rounded-lg transition-all duration-300 group"
+                  style={
                     isActive
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }`}
+                      ? {
+                          background:
+                            "linear-gradient(90deg, #7C3AED 0%, #8B5CF6 100%)",
+                          color: "#FFFFFF",
+                          boxShadow:
+                            "0 4px 6px -1px rgba(139, 92, 246, 0.3), 0 2px 4px -1px rgba(139, 92, 246, 0.15)",
+                        }
+                      : { color: "#6B7280" }
+                  }
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background =
+                        "rgba(139, 92, 246, 0.1)";
+                      e.currentTarget.style.borderLeft = "3px solid #8B5CF6";
+                      e.currentTarget.style.color = "#8B5CF6";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "";
+                      e.currentTarget.style.borderLeft = "";
+                      e.currentTarget.style.color = "#6B7280";
+                    }
+                  }}
                 >
-                  <span className={`mr-3 ${isActive ? "text-blue-200" : ""}`}>
+                  <span
+                    className="mr-3 transition-colors duration-300"
+                    style={{ color: isActive ? "#A78BFA" : "inherit" }}
+                  >
                     {item.icon}
                   </span>
-                  <span className="font-medium">{item.name}</span>
+                  <span className="font-medium text-sm">{item.name}</span>
+                  {isActive && (
+                    <div
+                      className="ml-auto w-2 h-2 rounded-full animate-pulse"
+                      style={{ background: "#A78BFA" }}
+                    ></div>
+                  )}
                 </Link>
               );
             })}
@@ -279,9 +336,16 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* User Section */}
           <div className="px-3">
-            <div className="flex items-center mb-3">
+            <div
+              className="flex items-center mb-3 px-3 py-2 rounded-lg"
+              style={{
+                background: "rgba(139, 92, 246, 0.05)",
+                border: "1px solid rgba(139, 92, 246, 0.2)",
+              }}
+            >
               <svg
-                className="w-4 h-4 text-purple-400 mr-2"
+                className="w-4 h-4 mr-2"
+                style={{ color: "#A78BFA" }}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -293,7 +357,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                 />
               </svg>
-              <h3 className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+              <h3
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: "#A78BFA" }}
+              >
                 Mi Cuenta
               </h3>
             </div>
@@ -304,16 +371,47 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   key={item.name}
                   href={item.href}
                   onClick={onClose}
-                  className={`flex items-center px-3 py-3 mb-1 rounded-lg transition-colors duration-200 ${
+                  className="flex items-center px-3 py-3 mb-1 rounded-lg transition-all duration-300 group"
+                  style={
                     isActive
-                      ? "bg-purple-600 text-white"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }`}
+                      ? {
+                          background:
+                            "linear-gradient(90deg, #7C3AED 0%, #8B5CF6 100%)",
+                          color: "#FFFFFF",
+                          boxShadow:
+                            "0 4px 6px -1px rgba(167, 139, 250, 0.3), 0 2px 4px -1px rgba(167, 139, 250, 0.15)",
+                        }
+                      : { color: "#6B7280" }
+                  }
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background =
+                        "rgba(167, 139, 250, 0.1)";
+                      e.currentTarget.style.borderLeft = "3px solid #A78BFA";
+                      e.currentTarget.style.color = "#A78BFA";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "";
+                      e.currentTarget.style.borderLeft = "";
+                      e.currentTarget.style.color = "#6B7280";
+                    }
+                  }}
                 >
-                  <span className={`mr-3 ${isActive ? "text-purple-200" : ""}`}>
+                  <span
+                    className="mr-3 transition-colors duration-300"
+                    style={{ color: isActive ? "#C4B5FD" : "inherit" }}
+                  >
                     {item.icon}
                   </span>
-                  <span className="font-medium">{item.name}</span>
+                  <span className="font-medium text-sm">{item.name}</span>
+                  {isActive && (
+                    <div
+                      className="ml-auto w-2 h-2 rounded-full animate-pulse"
+                      style={{ background: "#C4B5FD" }}
+                    ></div>
+                  )}
                 </Link>
               );
             })}

@@ -51,17 +51,18 @@ export const sendMarketingEmail = async (
   try {
     // Configurar headers base
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
 
     // Agregar token de autorización si se proporciona
     if (authToken) {
-      headers['Authorization'] = `Bearer ${authToken}`;
+      headers["Authorization"] = `Bearer ${authToken}`;
     }
 
     // Realizar la llamada a la API de email
+    console.log("acaaaaaaaa");
     const emailResponse = await axiosInstance.post<EmailResponse>(
-      '/api/send-marketing-email',
+      "/api/send-marketing-email",
       formData,
       {
         headers,
@@ -79,13 +80,17 @@ export const sendMarketingEmail = async (
     if (error.response) {
       // El servidor respondió con un código de error
       const errorData: EmailError = error.response.data;
-      throw new Error(errorData.details || errorData.error || 'Error al enviar el email');
+      throw new Error(
+        errorData.details || errorData.error || "Error al enviar el email"
+      );
     } else if (error.request) {
       // La petición fue hecha pero no se recibió respuesta
-      throw new Error('No se pudo conectar con el servidor. Verifica tu conexión a internet.');
+      throw new Error(
+        "No se pudo conectar con el servidor. Verifica tu conexión a internet."
+      );
     } else {
       // Algo pasó al configurar la petición
-      throw new Error('Error al configurar la petición: ' + error.message);
+      throw new Error("Error al configurar la petición: " + error.message);
     }
   }
 };
@@ -95,28 +100,32 @@ export const sendMarketingEmail = async (
  * @param formData - Datos del formulario a validar
  * @returns true si es válido, lanza error si no
  */
-export const validateMarketingFormData = (formData: MarketingFormData): boolean => {
+export const validateMarketingFormData = (
+  formData: MarketingFormData
+): boolean => {
   // Validar que al menos una herramienta esté seleccionada
   const hasSelectedTools = Object.values(formData.tools).some(Boolean);
-  
+
   if (!hasSelectedTools) {
-    throw new Error('Debe seleccionar al menos una herramienta de marketing');
+    throw new Error("Debe seleccionar al menos una herramienta de marketing");
   }
 
   // Validar que haya al menos un criterio de segmentación
-  const hasSegmentation = 
+  const hasSegmentation =
     formData.segmentation.countries.length > 0 ||
     formData.segmentation.genders.length > 0 ||
     formData.segmentation.ages.length > 0 ||
     formData.segmentation.genres.length > 0;
 
   if (!hasSegmentation) {
-    throw new Error('Debe especificar al menos un criterio de segmentación');
+    throw new Error("Debe especificar al menos un criterio de segmentación");
   }
 
   // Validar presupuesto (opcional pero recomendado)
   if (!formData.budget.trim()) {
-    console.warn('Presupuesto no especificado - recomendamos agregar esta información');
+    console.warn(
+      "Presupuesto no especificado - recomendamos agregar esta información"
+    );
   }
 
   return true;
@@ -127,37 +136,51 @@ export const validateMarketingFormData = (formData: MarketingFormData): boolean 
  * @param formData - Datos del formulario
  * @returns Resumen legible de la solicitud
  */
-export const getMarketingRequestSummary = (formData: MarketingFormData): string => {
+export const getMarketingRequestSummary = (
+  formData: MarketingFormData
+): string => {
   const selectedTools = Object.entries(formData.tools)
     .filter(([_, selected]) => selected)
     .map(([tool, _]) => {
       const toolNames = {
-        googleAds: 'Google Ads',
-        marquee: 'Spotify Marquee',
-        meta: 'Meta Ads',
-        tiktokAds: 'TikTok Ads',
-        kali: 'Kali',
-        mediosDigitales: 'Medios Digitales',
-        mediosTradicionales: 'Medios Tradicionales'
+        googleAds: "Google Ads",
+        marquee: "Spotify Marquee",
+        meta: "Meta Ads",
+        tiktokAds: "TikTok Ads",
+        kali: "Kali",
+        mediosDigitales: "Medios Digitales",
+        mediosTradicionales: "Medios Tradicionales",
       };
       return toolNames[tool as keyof typeof toolNames] || tool;
     });
 
   const segmentationSummary = [];
   if (formData.segmentation.countries.length > 0) {
-    segmentationSummary.push(`${formData.segmentation.countries.length} países`);
+    segmentationSummary.push(
+      `${formData.segmentation.countries.length} países`
+    );
   }
   if (formData.segmentation.genres.length > 0) {
-    segmentationSummary.push(`${formData.segmentation.genres.length} géneros musicales`);
+    segmentationSummary.push(
+      `${formData.segmentation.genres.length} géneros musicales`
+    );
   }
   if (formData.segmentation.ages.length > 0) {
-    segmentationSummary.push(`${formData.segmentation.ages.length} grupos de edad`);
+    segmentationSummary.push(
+      `${formData.segmentation.ages.length} grupos de edad`
+    );
   }
   if (formData.segmentation.genders.length > 0) {
     segmentationSummary.push(`${formData.segmentation.genders.length} géneros`);
   }
 
-  return `Solicitud de marketing con ${selectedTools.length} herramientas seleccionadas (${selectedTools.join(', ')}) y segmentación por ${segmentationSummary.join(', ')}. Presupuesto: ${formData.budget || 'No especificado'}.`;
+  return `Solicitud de marketing con ${
+    selectedTools.length
+  } herramientas seleccionadas (${selectedTools.join(
+    ", "
+  )}) y segmentación por ${segmentationSummary.join(", ")}. Presupuesto: ${
+    formData.budget || "No especificado"
+  }.`;
 };
 
 /**
@@ -165,36 +188,40 @@ export const getMarketingRequestSummary = (formData: MarketingFormData): string 
  * @param formData - Datos del formulario
  * @returns Datos formateados para la API
  */
-export const formatMarketingRequestForAPI = (formData: MarketingFormData): Omit<MarketingRequest, 'id' | 'createdAt' | 'updatedAt'> => {
+export const formatMarketingRequestForAPI = (
+  formData: MarketingFormData
+): Omit<MarketingRequest, "id" | "createdAt" | "updatedAt"> => {
   const selectedTools = Object.entries(formData.tools)
     .filter(([_, selected]) => selected)
     .map(([tool, _]) => {
       const toolNames = {
-        googleAds: 'Google Ads',
-        marquee: 'Spotify Marquee',
-        meta: 'Meta Ads',
-        tiktokAds: 'TikTok Ads',
-        kali: 'Kali',
-        mediosDigitales: 'Medios Digitales',
-        mediosTradicionales: 'Medios Tradicionales'
+        googleAds: "Google Ads",
+        marquee: "Spotify Marquee",
+        meta: "Meta Ads",
+        tiktokAds: "TikTok Ads",
+        kali: "Kali",
+        mediosDigitales: "Medios Digitales",
+        mediosTradicionales: "Medios Tradicionales",
       };
       return toolNames[tool as keyof typeof toolNames] || tool;
     });
 
   return {
-    title: `Campaña ${formData.content_type || 'Marketing'} - ${new Date().toLocaleDateString()}`,
+    title: `Campaña ${
+      formData.content_type || "Marketing"
+    } - ${new Date().toLocaleDateString()}`,
     tools: selectedTools,
-    budget: formData.budget || 'No especificado',
-    objective: formData.campaign_objective || 'No especificado',
-    timeline: formData.timeline || 'No especificado',
-    status: 'pending' as const,
-    notes: formData.additional_notes || 'Nueva solicitud creada.',
+    budget: formData.budget || "No especificado",
+    objective: formData.campaign_objective || "No especificado",
+    timeline: formData.timeline || "No especificado",
+    status: "pending" as const,
+    notes: formData.additional_notes || "Nueva solicitud creada.",
     segmentation: {
       countries: formData.segmentation.countries,
       genders: formData.segmentation.genders,
       ages: formData.segmentation.ages,
       genres: formData.segmentation.genres,
-    }
+    },
   };
 };
 
@@ -208,33 +235,35 @@ export const formatMarketingRequestForUI = (formData: MarketingFormData) => {
     .filter(([_, selected]) => selected)
     .map(([tool, _]) => {
       const toolNames = {
-        googleAds: 'Google Ads',
-        marquee: 'Spotify Marquee',
-        meta: 'Meta Ads',
-        tiktokAds: 'TikTok Ads',
-        kali: 'Kali',
-        mediosDigitales: 'Medios Digitales',
-        mediosTradicionales: 'Medios Tradicionales'
+        googleAds: "Google Ads",
+        marquee: "Spotify Marquee",
+        meta: "Meta Ads",
+        tiktokAds: "TikTok Ads",
+        kali: "Kali",
+        mediosDigitales: "Medios Digitales",
+        mediosTradicionales: "Medios Tradicionales",
       };
       return toolNames[tool as keyof typeof toolNames] || tool;
     });
 
   return {
     id: Date.now().toString(),
-    title: `Campaña ${formData.content_type || 'Marketing'} - ${new Date().toLocaleDateString()}`,
+    title: `Campaña ${
+      formData.content_type || "Marketing"
+    } - ${new Date().toLocaleDateString()}`,
     tools: selectedTools,
-    budget: formData.budget || 'No especificado',
-    objective: formData.campaign_objective || 'No especificado',
-    timeline: formData.timeline || 'No especificado',
-    status: 'pending' as const,
+    budget: formData.budget || "No especificado",
+    objective: formData.campaign_objective || "No especificado",
+    timeline: formData.timeline || "No especificado",
+    status: "pending" as const,
     createdAt: new Date().toLocaleDateString(),
     updatedAt: new Date().toLocaleDateString(),
-    notes: formData.additional_notes || 'Nueva solicitud creada.',
+    notes: formData.additional_notes || "Nueva solicitud creada.",
     segmentation: {
       countries: formData.segmentation.countries,
       genders: formData.segmentation.genders,
       ages: formData.segmentation.ages,
       genres: formData.segmentation.genres,
-    }
+    },
   };
 };

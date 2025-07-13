@@ -5,13 +5,14 @@ interface SongsNavigationProps {
   onTabChange: (tab: string) => void;
 }
 
-export default function SongsNavigation({ activeTab, onTabChange }: SongsNavigationProps) {
+export default function SongsNavigation({
+  activeTab,
+  onTabChange,
+}: SongsNavigationProps) {
   const tabs = [
-    { id: "mis-tracks", label: "Mis Tracks", icon: "🎵" },
-    { id: "playlists", label: "En Playlists", icon: "📋" },
-    { id: "metricas", label: "Métricas", icon: "📊" },
-    { id: "charts", label: "Charts", icon: "📈" },
-    { id: "trending", label: "Trending", icon: "🔥" },
+    { id: "overview", label: "Resumen", icon: "📊" },
+    { id: "mis-tracks", label: "Todas las Canciones", icon: "🎵" },
+    { id: "playlists", label: "Todos los Álbumes", icon: "💿" },
   ];
 
   return (

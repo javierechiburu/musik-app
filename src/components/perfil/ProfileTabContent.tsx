@@ -29,13 +29,11 @@ export default function ProfileTabContent({
   userData,
 }: ProfileTabContentProps) {
   const renderPersonalTab = () => (
-    <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 backdrop-blur border border-green-500/20 rounded-xl p-6">
+    <div className="px-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-xl font-semibold text-green-400">
-            Información Personal
-          </h3>
-          <p className="text-green-300/60 text-sm">
+          <h3 className="text-xl font-semibold">Información Personal</h3>
+          <p className="text-gray-200/80">
             Gestiona tus datos personales y de contacto
           </p>
         </div>
@@ -117,12 +115,10 @@ export default function ProfileTabContent({
   );
 
   const renderSecurityTab = () => (
-    <div className="bg-gradient-to-br from-red-900/30 to-pink-900/30 backdrop-blur border border-red-500/20 rounded-xl p-6">
+    <div className="px-6">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-red-400">
-          Configuración de Seguridad
-        </h3>
-        <p className="text-red-300/60 text-sm">
+        <h3 className="text-xl font-semibold">Configuración de Seguridad</h3>
+        <p className="text-gray-200/80">
           Mantén tu cuenta segura actualizando tu contraseña
         </p>
       </div>
