@@ -2,14 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchMarketingStandards } from "@/apis/marketingAPI";
-
-function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-    </div>
-  );
-}
+import { LoadingSpinner } from "../ui/Loadings";
 
 function ErrorMessage({
   error,

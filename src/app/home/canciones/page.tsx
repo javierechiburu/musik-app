@@ -59,76 +59,6 @@ function ErrorMessage({
   );
 }
 
-function transformTracksData(tracks: ChartmetricTrackResponse[]) {
-  return tracks.map((track) => ({
-    id: track.id,
-    title: track.title,
-    album: track.album,
-    releaseDate: track.release_date,
-    duration: track.duration,
-    streams: track.streaming_metrics.total_streams,
-    chartPosition: track.chart_data.current_position,
-    previousPosition: track.chart_data.previous_position,
-    spotifyStreams: track.streaming_metrics.spotify_streams,
-    appleStreams: track.streaming_metrics.apple_streams,
-    youtubeViews: track.streaming_metrics.youtube_views,
-    saves: track.streaming_metrics.saves,
-    isrc: track.isrc,
-    mood: track.mood,
-    genre: track.genre,
-  }));
-}
-
-function transformPlaylistsData(playlists: ChartmetricPlaylistResponse[]) {
-  return playlists.map((playlist) => ({
-    id: playlist.id,
-    playlistName: playlist.playlist_name,
-    platform: playlist.platform,
-    curator: playlist.curator,
-    followers: playlist.followers,
-    trackTitle: playlist.track_title,
-    position: playlist.position,
-    dateAdded: playlist.date_added,
-    streams: playlist.streams,
-    playlistType: playlist.playlist_type,
-    isActive: playlist.is_active,
-  }));
-}
-
-function transformChartsData(charts: ChartmetricChartResponse[]) {
-  return charts.map((chart) => ({
-    id: chart.id,
-    trackTitle: chart.track_title,
-    chartName: chart.chart_name,
-    position: chart.position,
-    previousPosition: chart.previous_position,
-    peakPosition: chart.peak_position,
-    weeksOnChart: chart.weeks_on_chart,
-    country: chart.country,
-    platform: chart.platform,
-    lastUpdated: chart.last_updated,
-    trend: chart.trend,
-  }));
-}
-
-function transformTrendingData(trending: ChartmetricTrendingResponse[]) {
-  return trending.map((trend) => ({
-    id: trend.id,
-    trackTitle: trend.track_title,
-    platform: trend.platform,
-    trendingScore: trend.trending_score,
-    growthPercentage: trend.growth_percentage,
-    viralMoment: trend.viral_moment,
-    hashtags: trend.hashtags,
-    influencerMentions: trend.influencer_mentions,
-    userGeneratedContent: trend.user_generated_content,
-    predictedPeak: trend.predicted_peak,
-    currentMomentum: trend.current_momentum,
-    regions: trend.regions,
-    ageGroup: trend.age_group,
-  }));
-}
-
 function SongsHeader() {
   return (
     <HeaderPage overlayColor="purple" height="md">
@@ -287,17 +217,11 @@ function CancionesPrincipales({ viewAll = false }: { viewAll?: boolean }) {
   const canciones = viewAll ? todasLasCanciones : todasLasCanciones.slice(0, 6);
 
   return (
-    <div className="bg-gradient-to-r from-indigo-900/40 to-violet-900/20 text-white p-6 rounded-lg shadow border border-gray-700">
+    <div className="bg-gradient-to-r from-indigo-900/10 to-violet-900/10 text-white p-6 rounded-lg shadow">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
           Canciones
-          <span
-            className="text-gray-400 text-base cursor-help"
-            title="Canciones con mejor desempeño"
-          >
-            ℹ️
-          </span>
         </h2>
       </div>
 
@@ -306,7 +230,7 @@ function CancionesPrincipales({ viewAll = false }: { viewAll?: boolean }) {
         {canciones.map((cancion, index) => (
           <div
             key={index}
-            className="bg-gradient-to-r from-blue-900/50 via-indigo-900/50 to-sky-900/50 rounded-xl overflow-hidden border border-gray-100/20 flex flex-col"
+            className="bg-gradient-to-br from-violet-900/10 to-sky-900/10 rounded-xl overflow-hidden border border-gray-100/20 flex flex-col"
           >
             {/* Portada */}
             <div className="relative w-full h-48">
@@ -332,7 +256,7 @@ function CancionesPrincipales({ viewAll = false }: { viewAll?: boolean }) {
 
             {/* Detalles */}
             <div className="p-4 flex-1">
-              <h4 className="text-blue-400 font-semibold text-lg hover:underline cursor-pointer mb-2">
+              <h4 className="text-white font-semibold text-lg hover:underline cursor-pointer mb-2">
                 {cancion.titulo}
               </h4>
               <p className="text-xs text-gray-400 mb-3">
@@ -469,7 +393,7 @@ function AlbumsSection({ viewAll = false }: { viewAll?: boolean }) {
       {/* Último lanzamiento destacado - solo mostrar en vista resumida */}
       {!viewAll && (
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-violet-900/20 via-green-900/10 to-lime-800/10 rounded-lg p-6 flex gap-6 items-center border border-gray-700/20">
+          <div className="bg-gradient-to-r from-violet-900/10 to-indigo-900/10 rounded-lg p-6 flex gap-6 items-center border border-gray-700/20">
             <div className="w-32 h-32 relative">
               <Image
                 src="/bb_bandia.png"
@@ -484,7 +408,7 @@ function AlbumsSection({ viewAll = false }: { viewAll?: boolean }) {
                   🆕 Último Lanzamiento
                 </span>
               </div>
-              <h4 className="text-yellow-300 font-semibold text-2xl mb-2">
+              <h4 className="text-white font-semibold text-2xl mb-2">
                 BB Bandia
               </h4>
               <p className="text-gray-400 text-sm mb-3">
@@ -526,7 +450,7 @@ function AlbumsSection({ viewAll = false }: { viewAll?: boolean }) {
         {albums.map((album, index) => (
           <div
             key={index}
-            className="bg-gradient-to-br from-violet-900/20 to-emerald-800/20 border border-gray-700/20 rounded-lg p-4 hover:scale-105 transition-transform cursor-pointer"
+            className="bg-gradient-to-br from-violet-900/10 to-indigo-900/10 border border-gray-700/20 rounded-lg p-4 hover:scale-105 transition-transform cursor-pointer"
           >
             <div className="w-full aspect-square mb-4 relative">
               <Image
@@ -536,7 +460,7 @@ function AlbumsSection({ viewAll = false }: { viewAll?: boolean }) {
                 className="rounded-md object-cover"
               />
             </div>
-            <h4 className="text-yellow-300 font-semibold mb-1">
+            <h4 className="text-white font-semibold mb-1">
               {album.titulo}
             </h4>
             <p className="text-sm text-gray-400 mb-2">{album.fecha}</p>

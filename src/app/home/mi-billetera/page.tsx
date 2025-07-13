@@ -7,6 +7,7 @@ import HeaderPage, {
   HeaderIcon,
   HeaderButton,
 } from "@/components/ui/HeaderPage";
+import { LoadingSpinner } from "@/components/ui/Loadings";
 
 interface WithdrawalRequest {
   id: string;
@@ -29,35 +30,6 @@ interface EarningsData {
     amount: number;
     streams: number;
   }>;
-}
-
-function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-black">
-      <div className="relative">
-        <div className="flex items-end space-x-2">
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="rounded-sm animate-pulse"
-              style={{
-                width: "3px",
-                height: `${16 + i * 4}px`,
-                background: "linear-gradient(to top, #667eea, #764ba2)",
-                animationDelay: `${i * 0.15}s`,
-                animationDuration: "1.2s",
-              }}
-            ></div>
-          ))}
-        </div>
-        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-          <p className="text-sm font-medium" style={{ color: "#8B949E" }}>
-            Cargando...
-          </p>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function WalletHeader() {
@@ -518,14 +490,14 @@ export default function MiBilleteraPage() {
     }
   };
 
+  if(isLoadingEarnings){
+    return <LoadingSpinner />
+  }
+
   return (
     <div className="space-y-6">
       <WalletHeader />
 
-      {isLoadingEarnings ? (
-        <LoadingSpinner />
-      ) : (
-        <>
           <EarningsOverview earnings={earningsData} />
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -557,9 +529,6 @@ export default function MiBilleteraPage() {
               </div>
             </div>
           </div>
-        </>
-      )}
-
       <WithdrawalHistory requests={withdrawalRequests} />
     </div>
   );

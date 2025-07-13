@@ -109,7 +109,7 @@ function NoissProfile() {
         </div>
       </div>
       <div className="flex flex-col space-y-3">
-        <div className="text-sm text-purple-100 font-medium">
+        <div className="text-sm text-white font-medium">
           Redes Sociales
         </div>
         <div className="flex space-x-3">
@@ -1005,7 +1005,7 @@ function UltimosLanzamientos() {
           {albums.map((album, index) => (
             <div
               key={index}
-              className="min-w-[200px] bg-gradient-to-br from-purple-900/30 to-indigo-800/20 border border-purple-500/30 rounded-lg p-3 flex-shrink-0"
+              className="min-w-[200px] bg-gradient-to-br from-violet-900/20 to-indigo-800/20 border border-purple-500/30 rounded-lg p-3 flex-shrink-0"
               style={{ boxShadow: "0 4px 8px rgba(139, 92, 246, 0.1)" }}
             >
               <div className="w-full aspect-square mb-3 relative">
@@ -1016,7 +1016,7 @@ function UltimosLanzamientos() {
                   className="rounded-md object-cover"
                 />
               </div>
-              <h4 className="text-purple-300 font-semibold">{album.titulo}</h4>
+              <h4 className="text-white font-semibold">{album.titulo}</h4>
               <p className="text-sm text-gray-400 mb-2">{album.fecha}</p>
               <div className="text-xs space-y-1">
                 <div className="flex justify-between">

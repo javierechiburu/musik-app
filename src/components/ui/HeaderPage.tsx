@@ -13,7 +13,7 @@ interface HeaderPageProps {
 
 const overlayColorMap = {
   blue: "from-purple-900/70 via-indigo-600/60 to-purple-800/70",
-  purple: "from-purple-900/80 via-purple-600/70 to-purple-700/80", 
+  purple: "from-purple-900/20 via-purple-600/20 to-purple-700/20", 
   green: "from-purple-800/70 via-purple-500/60 to-purple-600/70",
   red: "from-purple-700/70 via-purple-600/50 to-purple-800/70",
   yellow: "from-purple-600/70 via-purple-500/50 to-purple-700/70",
