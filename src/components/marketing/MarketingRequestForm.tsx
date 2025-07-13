@@ -243,7 +243,7 @@ export default function MarketingRequestForm({
   return (
     <div className="space-y-8">
       {/* Header con progreso mejorado */}
-      <div className="bg-gradient-to-r from-pink-900/20 to-rose-900/20 rounded-xl p-8 border border-purple-500/20">
+      <div className="bg-gradient-to-r from-violet-900/20 to-indigo-900/20 rounded-xl p-8 border border-purple-500/20">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">

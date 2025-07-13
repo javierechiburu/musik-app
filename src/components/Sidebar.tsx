@@ -3,10 +3,11 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { cn } from "@/config/clsx/clsxMerge";
 
 const analyticsMenuItems = [
   {
-    name: "Analitica y Metricas",
+    name: "Analitica y Métricas",
     href: "/home",
     icon: (
       <svg
@@ -64,7 +65,7 @@ const analyticsMenuItems = [
   },
   {
     name: "Mi Equipo Marketing",
-    href: "/home/playlists",
+    href: "/home/equipo-marketing",
     icon: (
       <svg
         className="w-5 h-5"
@@ -77,25 +78,6 @@ const analyticsMenuItems = [
           strokeLinejoin="round"
           strokeWidth={2}
           d="M4 6h16M4 10h16M4 14h16M4 18h16"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "IA Musica",
-    href: "/home/charts",
-    icon: (
-      <svg
-        className="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
         />
       </svg>
     ),
@@ -195,7 +177,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`overflow-y-auto bg-violet-900/30
+        className={`overflow-y-auto bg-violet-950/20
         fixed top-0 left-0 h-full w-64 z-50
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
@@ -211,14 +193,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           style={{ borderBottom: "1px solid rgba(139, 92, 246, 0.2)" }}
         >
           <div className="flex items-center justify-between">
-            <div className="rounded-full overflow-hidden shadow-xl backdrop-blur-md">
+            <div>
               <Image
-                src="/FADER-FOTOPERFIL.jpg"
-                width={100}
+                src="/FADER_LOGO.svg"
+                width={200}
                 height={80}
                 alt="logo fader"
-                className="object-cover fade-edges"
+                className="invert"
               />
+              <p>Contenido Musical</p>
             </div>
             <button
               onClick={onClose}
@@ -275,8 +258,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 />
               </svg>
               <h3
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ color: "#8B5CF6" }}
+                className="text-xs font-semibold uppercase tracking-wider text-violet-300"
               >
                 Analytics
               </h3>
@@ -288,46 +270,31 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   key={item.name}
                   href={item.href}
                   onClick={onClose}
-                  className="flex items-center px-3 py-3 mb-1 rounded-lg transition-all duration-300 group"
-                  style={
-                    isActive
-                      ? {
-                          background:
-                            "linear-gradient(90deg, #7C3AED 0%, #8B5CF6 100%)",
-                          color: "#FFFFFF",
-                          boxShadow:
-                            "0 4px 6px -1px rgba(139, 92, 246, 0.3), 0 2px 4px -1px rgba(139, 92, 246, 0.15)",
-                        }
-                      : { color: "#6B7280" }
-                  }
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background =
-                        "rgba(139, 92, 246, 0.1)";
-                      e.currentTarget.style.borderLeft = "3px solid #8B5CF6";
-                      e.currentTarget.style.color = "#8B5CF6";
+                  className={cn(
+                    "flex items-center px-3 py-3 mb-1 rounded-lg transition-all duration-300 group relative",
+                    {
+                      // Estilos cuando está activo
+                      "bg-violet-600 text-white shadow-md shadow-violet-500/30":
+                        isActive,
+
+                      // Estilos cuando NO está activo
+                      "text-white hover:bg-violet-500/10 hover:text-violet-500 hover:border-l-4 hover:border-violet-500":
+                        !isActive,
                     }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = "";
-                      e.currentTarget.style.borderLeft = "";
-                      e.currentTarget.style.color = "#6B7280";
-                    }
-                  }}
+                  )}
                 >
                   <span
-                    className="mr-3 transition-colors duration-300"
-                    style={{ color: isActive ? "#A78BFA" : "inherit" }}
+                    className={cn("mr-3 transition-colors duration-300", {
+                      "text-violet-300": isActive,
+                    })}
                   >
                     {item.icon}
                   </span>
+
                   <span className="font-medium text-sm">{item.name}</span>
+
                   {isActive && (
-                    <div
-                      className="ml-auto w-2 h-2 rounded-full animate-pulse"
-                      style={{ background: "#A78BFA" }}
-                    ></div>
+                    <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse"></div>
                   )}
                 </Link>
               );
@@ -344,8 +311,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               }}
             >
               <svg
-                className="w-4 h-4 mr-2"
-                style={{ color: "#A78BFA" }}
+                className="w-4 h-4 mr-2 text-pink-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -358,8 +324,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 />
               </svg>
               <h3
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ color: "#A78BFA" }}
+                className="text-xs font-semibold uppercase tracking-wider text-pink-400"
               >
                 Mi Cuenta
               </h3>
@@ -371,48 +336,34 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   key={item.name}
                   href={item.href}
                   onClick={onClose}
-                  className="flex items-center px-3 py-3 mb-1 rounded-lg transition-all duration-300 group"
-                  style={
-                    isActive
-                      ? {
-                          background:
-                            "linear-gradient(90deg, #7C3AED 0%, #8B5CF6 100%)",
-                          color: "#FFFFFF",
-                          boxShadow:
-                            "0 4px 6px -1px rgba(167, 139, 250, 0.3), 0 2px 4px -1px rgba(167, 139, 250, 0.15)",
-                        }
-                      : { color: "#6B7280" }
-                  }
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background =
-                        "rgba(167, 139, 250, 0.1)";
-                      e.currentTarget.style.borderLeft = "3px solid #A78BFA";
-                      e.currentTarget.style.color = "#A78BFA";
+                  className={cn(
+                    "flex items-center px-3 py-3 mb-1 rounded-lg transition-all duration-300 group relative",
+                    {
+                      // Estilos cuando está activo
+                      "bg-pink-500 text-white shadow-md shadow-pink-500/30":
+                        isActive,
+
+                      // Estilos cuando NO está activo
+                      "text-white hover:bg-pink-500/10 hover:text-pink-500 hover:border-l-4 hover:border-pink-500":
+                        !isActive,
                     }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = "";
-                      e.currentTarget.style.borderLeft = "";
-                      e.currentTarget.style.color = "#6B7280";
-                    }
-                  }}
+                  )}
                 >
                   <span
-                    className="mr-3 transition-colors duration-300"
-                    style={{ color: isActive ? "#C4B5FD" : "inherit" }}
+                    className={cn("mr-3 transition-colors duration-300", {
+                      "text-violet-300": isActive,
+                    })}
                   >
                     {item.icon}
                   </span>
+
                   <span className="font-medium text-sm">{item.name}</span>
+
                   {isActive && (
-                    <div
-                      className="ml-auto w-2 h-2 rounded-full animate-pulse"
-                      style={{ background: "#C4B5FD" }}
-                    ></div>
+                    <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse"></div>
                   )}
                 </Link>
+
               );
             })}
           </div>

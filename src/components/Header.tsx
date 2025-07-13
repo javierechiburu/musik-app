@@ -15,7 +15,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
   };
 
   return (
-    <header className="bg-violet-900 shadow-sm border-b border-gray-700 fixed top-0 left-0 right-0 lg:left-64 z-30 h-16">
+    <header className="bg-violet-950 shadow-sm border-b border-gray-700 fixed top-0 left-0 right-0 lg:left-64 z-30 h-16">
       <div className="h-full px-4 lg:px-6">
         <div className="flex items-center justify-between h-full">
           <div className="flex items-center space-x-4">

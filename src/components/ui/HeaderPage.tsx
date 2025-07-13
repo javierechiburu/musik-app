@@ -6,19 +6,19 @@ import Image from "next/image";
 interface HeaderPageProps {
   children: ReactNode;
   backgroundImage?: string;
-  overlayColor?: "blue" | "purple" | "green" | "red" | "yellow" | "cyan" | "pink" | "indigo";
+  overlayColor?: "blue" | "purple" | "green" | "red" | "yellow" | "cyan" | "pink" | "indigo" | "hero";
   className?: string;
   height?: "sm" | "md" | "lg" | "xl";
 }
 
 const overlayColorMap = {
-  blue: "from-purple-900/70 via-purple-600/60 to-purple-800/70",
+  blue: "from-purple-900/70 via-indigo-600/60 to-purple-800/70",
   purple: "from-purple-900/80 via-purple-600/70 to-purple-700/80", 
   green: "from-purple-800/70 via-purple-500/60 to-purple-600/70",
   red: "from-purple-700/70 via-purple-600/50 to-purple-800/70",
   yellow: "from-purple-600/70 via-purple-500/50 to-purple-700/70",
   cyan: "from-purple-800/70 via-purple-600/50 to-purple-900/70",
-  pink: "from-purple-700/70 via-purple-500/50 to-purple-800/70",
+  pink: "from-purple-700/20 via-pink-500/20 to-purple-800/20",
   indigo: "from-purple-900/70 via-purple-600/50 to-purple-800/70",
   hero: "from-purple-600/90 via-purple-700/80 to-purple-800/90",
   fader: "from-purple-900/80 via-purple-600/60 to-purple-700/70",

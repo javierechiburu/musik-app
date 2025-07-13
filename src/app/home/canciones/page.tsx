@@ -287,7 +287,7 @@ function CancionesPrincipales({ viewAll = false }: { viewAll?: boolean }) {
   const canciones = viewAll ? todasLasCanciones : todasLasCanciones.slice(0, 6);
 
   return (
-    <div className="bg-gradient-to-r from-emerald-900/40 to-sky-900/50 text-white p-6 rounded-lg shadow border border-gray-700">
+    <div className="bg-gradient-to-r from-indigo-900/40 to-violet-900/20 text-white p-6 rounded-lg shadow border border-gray-700">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -457,7 +457,7 @@ function AlbumsSection({ viewAll = false }: { viewAll?: boolean }) {
   const albums = viewAll ? todosLosAlbums : todosLosAlbums.slice(0, 4);
 
   return (
-    <div className="bg-gradient-to-br from-cyan-900/40 to-emerald-900/20 text-white p-6 rounded-lg shadow">
+    <div className="bg-gradient-to-br from-indigo-900/20 to-indigo-900/20 text-white p-6 rounded-lg shadow">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

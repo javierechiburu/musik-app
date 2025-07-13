@@ -22,3 +22,45 @@ body {
 html {
   color-scheme: dark;
 }
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-slow {
+  animation: spin-slow 4s linear infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.cd-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.1) 0deg,
+    rgba(255, 255, 255, 0.3) 45deg,
+    transparent 90deg,
+    transparent 270deg,
+    rgba(255, 255, 255, 0.2) 315deg,
+    rgba(255, 255, 255, 0.1) 360deg
+  );
+  pointer-events: none;
+  animation: shine 4s linear infinite;
+  mix-blend-mode: screen;
+}
+
