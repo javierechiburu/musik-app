@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchArtistEarnings, getMockEarningsData } from "@/apis/sonosuiteAPI";
-import { processWithdrawalRequest, fetchFormattedWithdrawalRequests } from "@/apis/billeteraAPI";
+import {
+  processWithdrawalRequest,
+  fetchFormattedWithdrawalRequests,
+} from "@/apis/billeteraAPI";
 import { LoadingSpinner } from "@/components/ui/Loadings";
 
 // Importar componentes separados
@@ -36,12 +38,12 @@ interface EarningsData {
 }
 
 export default function MiBilleteraPage() {
-  const [withdrawalRequests, setWithdrawalRequests] = useState<
-    WithdrawalRequest[]
-  >([]);
-
   // Obtener datos reales de solicitudes de retiro
-  const { data: withdrawalData, isLoading: isLoadingWithdrawals, refetch: refetchWithdrawals } = useQuery({
+  const {
+    data: withdrawalData,
+    isLoading: isLoadingWithdrawals,
+    refetch: refetchWithdrawals,
+  } = useQuery({
     queryKey: ["withdrawal-requests", "default_user_id"],
     queryFn: () => fetchFormattedWithdrawalRequests("default_user_id"),
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -93,17 +95,6 @@ export default function MiBilleteraPage() {
     try {
       // Usar la nueva función de la API
       const result = await processWithdrawalRequest(requestData);
-
-      // Crear la nueva solicitud para la UI
-      const newRequest: WithdrawalRequest = {
-        id: Date.now().toString(),
-        amount: requestData.amount!,
-        method: requestData.method!,
-        accountInfo: requestData.accountInfo!,
-        status: "pending",
-        requestDate: new Date().toISOString().split("T")[0],
-        description: requestData.description,
-      };
 
       // Refrescar datos de la base de datos
       await refetchWithdrawals();

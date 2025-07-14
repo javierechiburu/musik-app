@@ -64,7 +64,7 @@ export default function SolicitudRetiroBanner({
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Aquí iría la llamada real para enviar el email
-      const response = await fetch("/api/send-verification-email", {
+      await fetch("/api/send-verification-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

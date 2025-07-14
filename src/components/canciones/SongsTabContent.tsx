@@ -1,24 +1,18 @@
 "use client";
 
-import TrackListComponent from "./TrackListComponent";
-import PlaylistAppearances from "./PlaylistAppearances";
-import ChartMetrics from "./ChartMetrics";
-import TrendingAnalytics from "./TrendingAnalytics";
+import TrackListComponent, { Track } from "./TrackListComponent";
+import PlaylistAppearances, { PlaylistAppearance } from "./PlaylistAppearances";
 
 interface SongsTabContentProps {
-  activeTab: string;
-  tracksData: any[];
-  playlistsData: any[];
-  chartsData: any[];
-  trendingData: any[];
+  readonly activeTab: string;
+  readonly tracksData: Track[];
+  readonly playlistsData: PlaylistAppearance[];
 }
 
 export default function SongsTabContent({
   activeTab,
   tracksData,
   playlistsData,
-  chartsData,
-  trendingData,
 }: SongsTabContentProps) {
   const renderContent = () => {
     switch (activeTab) {

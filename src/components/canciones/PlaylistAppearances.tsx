@@ -1,6 +1,6 @@
 "use client";
 
-interface PlaylistAppearance {
+export interface PlaylistAppearance {
   id: string;
   playlistName: string;
   platform: string;

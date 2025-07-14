@@ -1,6 +1,6 @@
 "use client";
 
-interface Track {
+export interface Track {
   id: string;
   title: string;
   album: string;

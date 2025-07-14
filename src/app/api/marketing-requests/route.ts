@@ -53,7 +53,7 @@ export async function GET() {
 }
 
 // Función para obtener herramientas basadas en la segmentación
-function getToolsFromSegmentation(item: any): string[] {
+function getToolsFromSegmentation(item: unknown): string[] {
   const tools = [];
 
   // Lógica para inferir herramientas basada en la segmentación

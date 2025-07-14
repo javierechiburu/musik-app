@@ -4,13 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import SongsNavigation from "@/components/canciones/SongsNavigation";
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchSongsData,
-  type ChartmetricTrackResponse,
-  type ChartmetricPlaylistResponse,
-  type ChartmetricChartResponse,
-  type ChartmetricTrendingResponse,
-} from "@/apis/cancionesAPI";
+import { fetchSongsData } from "@/apis/cancionesAPI";
 import HeaderPage, { HeaderIcon } from "@/components/ui/HeaderPage";
 import { LoadingSpinner } from "@/components/ui/Loadings";
 
@@ -460,9 +454,7 @@ function AlbumsSection({ viewAll = false }: { viewAll?: boolean }) {
                 className="rounded-md object-cover"
               />
             </div>
-            <h4 className="text-white font-semibold mb-1">
-              {album.titulo}
-            </h4>
+            <h4 className="text-white font-semibold mb-1">{album.titulo}</h4>
             <p className="text-sm text-gray-400 mb-2">{album.fecha}</p>
             <p className="text-xs text-gray-500 mb-3">{album.tracks} tracks</p>
             <div className="space-y-1 text-xs">
