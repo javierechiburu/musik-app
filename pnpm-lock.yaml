@@ -42,6 +42,9 @@ importers:
       '@eslint/eslintrc':
         specifier: ^3
         version: 3.3.1
+      '@netlify/plugin-nextjs':
+        specifier: ^5.11.5
+        version: 5.11.5
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.11
@@ -283,6 +286,10 @@ packages:
 
   '@napi-rs/wasm-runtime@0.2.11':
     resolution: {integrity: sha512-9DPkXtvHydrcOsopiYpUgPHpmj0HWZKMUnL2dZqpvC42lsratuBG06V5ipyno0fUek5VlFsNQ+AcFATSrJXgMA==}
+
+  '@netlify/plugin-nextjs@5.11.5':
+    resolution: {integrity: sha512-dI3sKldRENHpg0hygYo6zqpniG/rR+fyG62AGQYHH707FMDCArqF1H7ZSMmN50YsNXv9VctA4rH7ygrUL8lBkA==}
+    engines: {node: '>=18.0.0'}
 
   '@next/env@15.3.5':
     resolution: {integrity: sha512-7g06v8BUVtN2njAX/r8gheoVffhiKFVt4nx74Tt6G4Hqw9HCLYQVx/GkH2qHvPtAHZaUNZ0VXAa0pQP6v1wk7g==}
@@ -2208,6 +2215,8 @@ snapshots:
       '@emnapi/runtime': 1.4.4
       '@tybys/wasm-util': 0.9.0
     optional: true
+
+  '@netlify/plugin-nextjs@5.11.5': {}
 
   '@next/env@15.3.5': {}
 
