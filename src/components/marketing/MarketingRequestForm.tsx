@@ -4,7 +4,7 @@ import { useState } from "react";
 import HeaderPage from "../ui/HeaderPage";
 
 interface MarketingRequestFormProps {
-  readonly onSubmit: (formData: unknown) => void;
+  readonly onSubmit: (formData: any) => void;
   readonly isLoading?: boolean;
 }
 

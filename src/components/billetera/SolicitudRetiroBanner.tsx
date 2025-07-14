@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { sendVerificationEmail } from "@/apis/emailAPI";
 
 interface WithdrawalRequest {
   id: string;
@@ -64,16 +65,10 @@ export default function SolicitudRetiroBanner({
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Aquí iría la llamada real para enviar el email
-      await fetch("/api/send-verification-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: "artist@email.com", // Usar email del usuario actual
-          code: code,
-          amount: formData.amount,
-        }),
+      const emailResult = await sendVerificationEmail({
+        email: "artist@email.com", // Usar email del usuario actual
+        code: code,
+        amount: formData.amount,
       });
 
       console.log("Código de verificación enviado:", code); // Solo para desarrollo

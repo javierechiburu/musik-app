@@ -1,14 +1,61 @@
 // src/app/api/create-user/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function POST(req: Request) {
+// Función auxiliar para verificar si el usuario es admin
+async function verifyAdminRole(request: NextRequest): Promise<{ user: any; isAdmin: boolean }> {
+  const supabaseClient = createRouteHandlerClient({ cookies });
+  
   try {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    
+    if (error || !user) {
+      return { user: null, isAdmin: false };
+    }
+    
+    const { data: userData, error: roleError } = await supabaseClient
+      .from("usuario")
+      .select("role")
+      .eq("auth_id", user.id)
+      .single();
+    
+    if (roleError || !userData) {
+      return { user, isAdmin: false };
+    }
+    
+    return { user, isAdmin: userData.role === "admin" };
+  } catch (error) {
+    console.error("Error verifying admin role:", error);
+    return { user: null, isAdmin: false };
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    // Verificar que el usuario sea admin
+    const { user, isAdmin } = await verifyAdminRole(req);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: "No autorizado" },
+        { status: 401 }
+      );
+    }
+    
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: "Acceso denegado - Se requiere rol de administrador" },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const { email, fullname, username, role } = body;
 

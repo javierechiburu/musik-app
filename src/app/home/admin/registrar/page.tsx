@@ -1,24 +1,25 @@
 "use client";
 
-import { useState } from 'react';
+import { useState } from "react";
+import { createUser, validateUserForm, formatUserData } from "@/apis/adminAPI";
 
 export default function RegistrarPage() {
   const [formData, setFormData] = useState({
-    nombreCompleto: '',
-    nombreArtista: '',
-    fechaNacimiento: '',
-    correo: '',
-    telefono: '',
-    pais: '',
-    ciudad: '',
-    generoMusical: '',
-    biografia: '',
+    nombreCompleto: "",
+    nombreArtista: "",
+    fechaNacimiento: "",
+    correo: "",
+    telefono: "",
+    pais: "",
+    ciudad: "",
+    generoMusical: "",
+    biografia: "",
     redesSociales: {
-      instagram: '',
-      youtube: '',
-      spotify: '',
-      tiktok: ''
-    }
+      instagram: "",
+      youtube: "",
+      spotify: "",
+      tiktok: "",
+    },
   });
 
   const [errors, setErrors] = useState<string[]>([]);
@@ -26,17 +27,17 @@ export default function RegistrarPage() {
   const [success, setSuccess] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+  const [modalMessage, setModalMessage] = useState("");
 
   const validateForm = (): string[] => {
     const validationErrors = [];
 
     if (!formData.nombreCompleto.trim()) {
-      validationErrors.push('El nombre completo es requerido');
+      validationErrors.push("El nombre completo es requerido");
     }
 
     if (!formData.nombreArtista.trim()) {
-      validationErrors.push('El nombre de artista es requerido');
+      validationErrors.push("El nombre de artista es requerido");
     }
 
     /*  if (!formData.fechaNacimiento) {
@@ -44,9 +45,9 @@ export default function RegistrarPage() {
      } */
 
     if (!formData.correo.trim()) {
-      validationErrors.push('El correo electrónico es requerido');
+      validationErrors.push("El correo electrónico es requerido");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
-      validationErrors.push('El formato del correo electrónico no es válido');
+      validationErrors.push("El formato del correo electrónico no es válido");
     }
 
     /*  if (!formData.telefono.trim()) {
@@ -73,9 +74,11 @@ export default function RegistrarPage() {
     setErrors([]);
     setSuccess(false);
 
-    const validationErrors = validateForm();
+    const validationErrors = validateUserForm(formData);
     if (validationErrors.length > 0) {
-      setModalMessage(`Por favor corrige los siguientes errores:\n\n${validationErrors.map(error => `• ${error}`).join('\n')}`);
+      setModalMessage(
+        `Por favor corrige los siguientes errores:\n\n${validationErrors.map((error) => `• ${error}`).join("\n")}`
+      );
       setShowErrorModal(true);
       return;
     }
@@ -83,53 +86,20 @@ export default function RegistrarPage() {
     setIsLoading(true);
 
     try {
-      // Simular llamada a API
-      // await new Promise(resolve => setTimeout(resolve, 2000));
+      const userData = formatUserData(formData);
+      const result = await createUser(userData);
 
-      // Aquí iría la llamada real a la API
-
-      const nuevoUsuario = {
-        email: formData.correo,
-        fullname: formData.nombreCompleto,
-        username: formData.nombreArtista,
-        role: 'user'
-      };
-
-      const res = await fetch('/api/create-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevoUsuario),
-      });
-
-      const result = await res.json();
-      console.log('result', result);
-
-      if (!res.ok) {
-        setModalMessage(result.error || 'Error desconocido al crear el usuario');
+      if (result.success) {
+        setModalMessage(result.message);
+        setShowSuccessModal(true);
+      } else {
+        setModalMessage(result.message);
         setShowErrorModal(true);
-        return;
       }
-
-      setModalMessage('Usuario registrado exitosamente en el sistema');
-      setShowSuccessModal(true);
-      /* setFormData({
-        nombreCompleto: '',
-        fechaNacimiento: '',
-        correo: '',
-        telefono: '',
-        pais: '',
-        ciudad: '',
-        generoMusical: '',
-        biografia: '',
-        redesSociales: {
-          instagram: '',
-          youtube: '',
-          spotify: '',
-          tiktok: ''
-        }
-      }); */
     } catch (error) {
-      setModalMessage('Error de conexión. Verifica tu conexión a internet e inténtalo de nuevo.');
+      setModalMessage(
+        "Error inesperado. Inténtalo de nuevo más tarde."
+      );
       setShowErrorModal(true);
     } finally {
       setIsLoading(false);
@@ -137,19 +107,19 @@ export default function RegistrarPage() {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleSocialChange = (platform: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       redesSociales: {
         ...prev.redesSociales,
-        [platform]: value
-      }
+        [platform]: value,
+      },
     }));
   };
 
@@ -157,8 +127,12 @@ export default function RegistrarPage() {
     <div className="min-h-screen bg-gray-900 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Registrar Nuevo Usuario</h1>
-          <p className="text-gray-400">Complete el formulario para agregar un nuevo usuario al sistema</p>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Registrar Nuevo Usuario
+          </h1>
+          <p className="text-gray-400">
+            Complete el formulario para agregar un nuevo usuario al sistema
+          </p>
         </div>
 
         <div className="bg-gray-800/50 rounded-lg p-6">
@@ -176,7 +150,9 @@ export default function RegistrarPage() {
                   <input
                     type="text"
                     value={formData.nombreCompleto}
-                    onChange={(e) => handleInputChange('nombreCompleto', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("nombreCompleto", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Ingresa el nombre completo"
                   />
@@ -189,7 +165,9 @@ export default function RegistrarPage() {
                   <input
                     type="text"
                     value={formData.nombreArtista}
-                    onChange={(e) => handleInputChange('nombreArtista', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("nombreArtista", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Ingresa el nombre de artista"
                   />
@@ -202,7 +180,9 @@ export default function RegistrarPage() {
                   <input
                     type="date"
                     value={formData.fechaNacimiento}
-                    onChange={(e) => handleInputChange('fechaNacimiento', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("fechaNacimiento", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                 </div>
@@ -214,7 +194,9 @@ export default function RegistrarPage() {
                   <input
                     type="email"
                     value={formData.correo}
-                    onChange={(e) => handleInputChange('correo', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("correo", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="correo@ejemplo.com"
                   />
@@ -227,7 +209,9 @@ export default function RegistrarPage() {
                   <input
                     type="tel"
                     value={formData.telefono}
-                    onChange={(e) => handleInputChange('telefono', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("telefono", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="+1 234 567 8900"
                   />
@@ -240,7 +224,7 @@ export default function RegistrarPage() {
                   <input
                     type="text"
                     value={formData.pais}
-                    onChange={(e) => handleInputChange('pais', e.target.value)}
+                    onChange={(e) => handleInputChange("pais", e.target.value)}
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Ingresa el país"
                   />
@@ -253,7 +237,9 @@ export default function RegistrarPage() {
                   <input
                     type="text"
                     value={formData.ciudad}
-                    onChange={(e) => handleInputChange('ciudad', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("ciudad", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Ingresa la ciudad"
                   />
@@ -273,7 +259,9 @@ export default function RegistrarPage() {
                   </label>
                   <select
                     value={formData.generoMusical}
-                    onChange={(e) => handleInputChange('generoMusical', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("generoMusical", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   >
                     <option value="">Selecciona un género</option>
@@ -296,7 +284,9 @@ export default function RegistrarPage() {
                   </label>
                   <textarea
                     value={formData.biografia}
-                    onChange={(e) => handleInputChange('biografia', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("biografia", e.target.value)
+                    }
                     rows={4}
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                     placeholder="Describe la biografía del artista..."
@@ -318,7 +308,9 @@ export default function RegistrarPage() {
                   <input
                     type="url"
                     value={formData.redesSociales.instagram}
-                    onChange={(e) => handleSocialChange('instagram', e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("instagram", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="https://instagram.com/usuario"
                   />
@@ -331,7 +323,9 @@ export default function RegistrarPage() {
                   <input
                     type="url"
                     value={formData.redesSociales.youtube}
-                    onChange={(e) => handleSocialChange('youtube', e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("youtube", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="https://youtube.com/c/canal"
                   />
@@ -344,7 +338,9 @@ export default function RegistrarPage() {
                   <input
                     type="url"
                     value={formData.redesSociales.spotify}
-                    onChange={(e) => handleSocialChange('spotify', e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("spotify", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="https://open.spotify.com/artist/..."
                   />
@@ -357,7 +353,9 @@ export default function RegistrarPage() {
                   <input
                     type="url"
                     value={formData.redesSociales.tiktok}
-                    onChange={(e) => handleSocialChange('tiktok', e.target.value)}
+                    onChange={(e) =>
+                      handleSocialChange("tiktok", e.target.value)
+                    }
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="https://tiktok.com/@usuario"
                   />
@@ -365,28 +363,27 @@ export default function RegistrarPage() {
               </div>
             </div>
 
-
             {/* Botones */}
             <div className="flex justify-end space-x-4 pt-4">
               <button
                 type="button"
                 onClick={() => {
                   setFormData({
-                    nombreCompleto: '',
-                    nombreArtista: '',
-                    fechaNacimiento: '',
-                    correo: '',
-                    telefono: '',
-                    pais: '',
-                    ciudad: '',
-                    generoMusical: '',
-                    biografia: '',
+                    nombreCompleto: "",
+                    nombreArtista: "",
+                    fechaNacimiento: "",
+                    correo: "",
+                    telefono: "",
+                    pais: "",
+                    ciudad: "",
+                    generoMusical: "",
+                    biografia: "",
                     redesSociales: {
-                      instagram: '',
-                      youtube: '',
-                      spotify: '',
-                      tiktok: ''
-                    }
+                      instagram: "",
+                      youtube: "",
+                      spotify: "",
+                      tiktok: "",
+                    },
                   });
                   setErrors([]);
                   setSuccess(false);
@@ -401,12 +398,29 @@ export default function RegistrarPage() {
                 className="px-6 py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center space-x-2"
               >
                 {isLoading && (
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 )}
-                <span>{isLoading ? 'Registrando...' : 'Registrar Usuario'}</span>
+                <span>
+                  {isLoading ? "Registrando..." : "Registrar Usuario"}
+                </span>
               </button>
             </div>
           </form>
@@ -419,14 +433,26 @@ export default function RegistrarPage() {
           <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-green-500/30">
             <div className="flex items-center space-x-3 mb-4">
               <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-8 h-8 text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-green-400">¡Éxito!</h3>
+                <h3 className="text-lg font-semibold text-green-400">
+                  ¡Éxito!
+                </h3>
                 <p className="text-gray-300 text-sm mt-1">
-                  {modalMessage || 'Usuario registrado exitosamente'}
+                  {modalMessage || "Usuario registrado exitosamente"}
                 </p>
               </div>
             </div>
@@ -435,21 +461,21 @@ export default function RegistrarPage() {
                 onClick={() => {
                   setShowSuccessModal(false);
                   setFormData({
-                    nombreCompleto: '',
-                    nombreArtista: '',
-                    fechaNacimiento: '',
-                    correo: '',
-                    telefono: '',
-                    pais: '',
-                    ciudad: '',
-                    generoMusical: '',
-                    biografia: '',
+                    nombreCompleto: "",
+                    nombreArtista: "",
+                    fechaNacimiento: "",
+                    correo: "",
+                    telefono: "",
+                    pais: "",
+                    ciudad: "",
+                    generoMusical: "",
+                    biografia: "",
                     redesSociales: {
-                      instagram: '',
-                      youtube: '',
-                      spotify: '',
-                      tiktok: ''
-                    }
+                      instagram: "",
+                      youtube: "",
+                      spotify: "",
+                      tiktok: "",
+                    },
                   });
                 }}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
@@ -467,19 +493,30 @@ export default function RegistrarPage() {
           <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-red-500/30">
             <div className="flex items-center space-x-3 mb-4">
               <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-8 h-8 text-red-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-red-400">Error</h3>
                 <div className="text-gray-300 text-sm mt-1">
-                  {modalMessage?.includes('•') ? (
-                    <div className="whitespace-pre-line">
-                      {modalMessage}
-                    </div>
+                  {modalMessage?.includes("•") ? (
+                    <div className="whitespace-pre-line">{modalMessage}</div>
                   ) : (
-                    <p>{modalMessage || 'Ocurrió un error al procesar la solicitud'}</p>
+                    <p>
+                      {modalMessage ||
+                        "Ocurrió un error al procesar la solicitud"}
+                    </p>
                   )}
                 </div>
               </div>

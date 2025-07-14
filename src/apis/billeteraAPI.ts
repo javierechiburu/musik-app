@@ -1,3 +1,5 @@
+import { axiosInstance } from "@/config/axios/axiosInstance";
+
 // Interfaz para datos de solicitud de retiro
 interface WithdrawalRequestData {
   id_usuario: string;
@@ -29,47 +31,55 @@ interface WithdrawalRequest {
 }
 
 // Función para insertar solicitud de retiro en la base de datos
-export const insertWithdrawalRequest = async (requestData: WithdrawalRequestData) => {
+export const insertWithdrawalRequest = async (
+  requestData: WithdrawalRequestData
+) => {
   try {
-    const response = await fetch("/api/billetera", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    return result;
-  } catch (error) {
+    const response = await axiosInstance.post("/api/billetera", requestData);
+    return response.data;
+  } catch (error: any) {
     console.error("Error al insertar solicitud de retiro:", error);
-    throw error;
+
+    if (error.response) {
+      throw new Error(
+        error.response.data.error || "Error al guardar la solicitud"
+      );
+    } else if (error.request) {
+      throw new Error("Error de conexión");
+    } else {
+      throw new Error("Error inesperado");
+    }
   }
 };
 
 // Función para obtener solicitudes de retiro del usuario
-export const fetchWithdrawalRequests = async (id_usuario: string = "default_user_id"): Promise<BilleteraRecord[]> => {
+export const fetchWithdrawalRequests = async (
+  id_usuario: string = "default_user_id"
+): Promise<BilleteraRecord[]> => {
   try {
-    const response = await fetch(`/api/billetera?id_usuario=${id_usuario}`);
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    return result.data || [];
-  } catch (error) {
+    const response = await axiosInstance.get(
+      `/api/billetera?id_usuario=${id_usuario}`
+    );
+    return response.data.data || [];
+  } catch (error: any) {
     console.error("Error al obtener solicitudes de retiro:", error);
-    throw error;
+
+    if (error.response) {
+      throw new Error(
+        error.response.data.error || "Error al obtener solicitudes"
+      );
+    } else if (error.request) {
+      throw new Error("Error de conexión");
+    } else {
+      throw new Error("Error inesperado");
+    }
   }
 };
 
 // Función para obtener y formatear solicitudes de retiro
-export const fetchFormattedWithdrawalRequests = async (id_usuario: string = "default_user_id") => {
+export const fetchFormattedWithdrawalRequests = async (
+  id_usuario: string = "default_user_id"
+) => {
   try {
     const records = await fetchWithdrawalRequests(id_usuario);
     return records.map(formatWithdrawalRequest);
@@ -80,7 +90,9 @@ export const fetchFormattedWithdrawalRequests = async (id_usuario: string = "def
 };
 
 // Función para formatear datos de la base de datos al formato de la interfaz
-export const formatWithdrawalRequest = (record: BilleteraRecord): WithdrawalRequest => {
+export const formatWithdrawalRequest = (
+  record: BilleteraRecord
+): WithdrawalRequest => {
   return {
     id: record.id,
     amount: record.monto,
@@ -118,23 +130,18 @@ export const processWithdrawalRequest = async (
     const dbResult = await insertWithdrawalRequest(dbData);
 
     // 3. Enviar email de notificación al administrador (si es necesario)
-    const emailResult = await fetch("/api/send-withdrawal-request", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        artistName: "Usuario", // En producción, esto vendría del contexto del usuario
-        amount: formData.amount,
-        method: formData.method,
-        accountInfo: formData.accountInfo,
-        description: formData.description,
-      }),
+    const { sendWithdrawalEmail } = await import("@/apis/emailAPI");
+    const emailResult = await sendWithdrawalEmail({
+      artistName: "Usuario", // En producción, esto vendría del contexto del usuario
+      amount: formData.amount || 0,
+      method: formData.method || "bank_transfer",
+      accountInfo: formData.accountInfo || "",
+      description: formData.description,
     });
 
     return {
       database: dbResult,
-      email: emailResult.ok ? { success: true } : { success: false },
+      email: emailResult,
     };
   } catch (error) {
     console.error("Error al procesar solicitud de retiro:", error);

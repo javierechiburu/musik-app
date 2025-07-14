@@ -187,7 +187,7 @@ export const sendMarketingEmailAPI = async (formData: unknown) => {
 };
 
 // Función principal para procesar solicitud de marketing
-export const processMarketingRequest = async (formData: unknown) => {
+export const processMarketingRequest = async (formData: any) => {
   try {
     // 1. Insertar datos en Supabase
     const dbResult = await insertMarketingData(formData);

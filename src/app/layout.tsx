@@ -1,9 +1,11 @@
-"use client";
-
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
 import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { QueryClientProviderWrapper } from "@/contexts/QueryClientContext";
+
+// Inicializar axios interceptors
+import "@/config/axios/axiosSetup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,31 +17,26 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const metadata: Metadata = {
+  title: "FADER Records - Musik App",
+  description: "Plataforma de gestión musical para artistas",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000,
-            refetchOnWindowFocus: false,
-          },
-        },
-      })
-  );
-
   return (
-    <html lang="en">
+    <html lang="es">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <QueryClientProviderWrapper>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </QueryClientProviderWrapper>
       </body>
     </html>
   );

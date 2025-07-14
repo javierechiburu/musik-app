@@ -1,3 +1,4 @@
+import { axiosInstance } from "@/config/axios/axiosInstance";
 
 // Tipos para los datos del formulario de marketing
 export interface MarketingFormData {
@@ -36,6 +37,127 @@ export interface EmailError {
   details?: string;
 }
 
+// Interfaces para diferentes tipos de email
+interface VerificationEmailData {
+  email: string;
+  code: string;
+  amount?: string;
+}
+
+interface WithdrawalEmailData {
+  artistName: string;
+  amount: number;
+  method: string;
+  accountInfo: string;
+  description?: string;
+}
+
+// Función para enviar email de verificación
+export const sendVerificationEmail = async (
+  data: VerificationEmailData
+): Promise<EmailResponse> => {
+  try {
+    const response = await axiosInstance.post(
+      "/api/send-verification-email",
+      data
+    );
+
+    if (response.status !== 200) {
+      console.error("Error al enviar email de verificación");
+
+      return {
+        success: false,
+        message: "Error al enviar el email de verificación",
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    return {
+      success: true,
+      message: "Email de verificación enviado exitosamente",
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    console.error("Error al enviar email de verificación:", error);
+
+    return {
+      success: false,
+      message: "Error al enviar el email de verificación",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+// Función para enviar email de marketing
+export const sendMarketingEmailAPI = async (
+  data: MarketingFormData
+): Promise<EmailResponse> => {
+  try {
+    const response = await axiosInstance.post(
+      "/api/send-marketing-email",
+      data
+    );
+
+    if (response.status !== 200) {
+      console.error("Error API");
+      return {
+        success: false,
+        message: "Error al enviar el email de marketing",
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    return {
+      success: true,
+      message: "Email de marketing enviado exitosamente",
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    console.error("Error al enviar email de marketing:", error);
+
+    return {
+      success: false,
+      message: "Error al enviar el email de marketing",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
+
+// Función para enviar email de solicitud de retiro
+export const sendWithdrawalEmail = async (
+  data: WithdrawalEmailData
+): Promise<EmailResponse> => {
+  try {
+    const response = await axiosInstance.post(
+      "/api/send-withdrawal-request",
+      data
+    );
+
+    if (response.status !== 200) {
+      console.error("Error al enviar email de verificación");
+
+      return {
+        success: false,
+        message: "Error al enviar el email de verificación",
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    return {
+      success: true,
+      message: "Email de solicitud de retiro enviado exitosamente",
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    console.error("Error al enviar email de retiro:", error);
+
+    return {
+      success: false,
+      message: "Error al enviar el email de solicitud de retiro",
+      timestamp: new Date().toISOString(),
+    };
+  }
+};
 
 /**
  * Valida los datos del formulario antes de enviar
@@ -72,6 +194,3 @@ export const validateMarketingFormData = (
 
   return true;
 };
-
-
-
