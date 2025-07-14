@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchMarketingRequests } from "@/apis/marketingAPI";
 import { LoadingSpinner } from "../ui/Loadings";
-
+import HeaderPage from "../ui/HeaderPage";
 
 function ErrorMessage({
   error,
@@ -13,17 +13,37 @@ function ErrorMessage({
   readonly onRetry: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-      <div className="text-red-500 text-center">
-        <h3 className="text-lg font-semibold mb-2">
+    <div
+      className="flex flex-col items-center justify-center min-h-[400px] space-y-4"
+      style={{
+        background:
+          "linear-gradient(135deg, #0F0F23 0%, #1A1A2E 50%, #16213E 100%)",
+      }}
+    >
+      <div
+        className="text-center p-8 rounded-2xl border backdrop-blur-sm"
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.08)",
+          borderColor: "rgba(255, 255, 255, 0.15)",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+        }}
+      >
+        <h2 className="text-xl font-semibold mb-2" style={{ color: "#F0F6FC" }}>
           Error al cargar las solicitudes
-        </h3>
-        <p className="text-gray-600 mb-4">{error.message}</p>
+        </h2>
+        <p className="mb-4" style={{ color: "#8B949E" }}>
+          {error.message}
+        </p>
         <button
           onClick={onRetry}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          className="px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:-translate-y-1"
+          style={{
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "#FFFFFF",
+            boxShadow: "0 4px 16px rgba(102, 126, 234, 0.3)",
+          }}
         >
-          Reintentar
+          🔄 Reintentar
         </button>
       </div>
     </div>
@@ -39,7 +59,7 @@ export default function MarketingRequests() {
   } = useQuery({
     queryKey: ["marketing-requests"],
     queryFn: fetchMarketingRequests,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: 5 * 60 * 1000,
     retry: 2,
   });
 
@@ -51,34 +71,20 @@ export default function MarketingRequests() {
     return <ErrorMessage error={error} onRetry={refetch} />;
   }
 
-  if (!requests || requests.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">
-            No tienes solicitudes de marketing aún
-          </p>
-          <p className="text-gray-400 text-sm">
-            Crea tu primera solicitud desde la pestaña Solicitar
-          </p>
-        </div>
-      </div>
-    );
-  }
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+        return "from-yellow-500/20 to-orange-500/20 border-yellow-500/30";
       case "approved":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
+        return "from-green-500/20 to-emerald-500/20 border-green-500/30";
       case "in_progress":
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+        return "from-blue-500/20 to-cyan-500/20 border-blue-500/30";
       case "completed":
-        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+        return "from-purple-500/20 to-violet-500/20 border-purple-500/30";
       case "rejected":
-        return "bg-red-500/20 text-red-400 border-red-500/30";
+        return "from-red-500/20 to-pink-500/20 border-red-500/30";
       default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
+        return "from-gray-500/20 to-slate-500/20 border-gray-500/30";
     }
   };
 
@@ -116,190 +122,329 @@ export default function MarketingRequests() {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-900/50 to-cyan-900/50 rounded-lg p-6 border border-blue-500/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-white">Mis Solicitudes</h3>
-              <p className="text-blue-200">
-                Seguimiento de campañas de marketing • {requests.length}{" "}
-                solicitudes
-              </p>
+  if (!requests || requests.length === 0) {
+    return (
+      <div className="space-y-6">
+        <HeaderPage overlayColor="blue">
+          <div className="flex flex-col w-full">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div
+                  className="w-32 h-32 rounded-full flex items-center justify-center"
+                  style={{
+                    background:
+                      "linear-gradient(145deg, #3B82F6 0%, #1D4ED8 100%)",
+                    boxShadow: "0 8px 16px rgba(59, 130, 246, 0.3)",
+                    border: "3px solid rgba(59, 130, 246, 0.2)",
+                  }}
+                >
+                  <span className="text-6xl">📋</span>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white">
+                    Mis Solicitudes de Marketing
+                  </h3>
+                  <p className="text-blue-100">
+                    Seguimiento de campañas • 0 solicitudes
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
+        </HeaderPage>
+
+        <div
+          className="bg-gradient-to-br from-gray-900/80 to-blue-900/20 backdrop-blur rounded-xl p-12 text-center border border-blue-500/30"
+          style={{ boxShadow: "0 8px 32px rgba(59, 130, 246, 0.15)" }}
+        >
+          <div className="text-6xl mb-4">📋</div>
+          <h3 className="text-xl font-semibold text-white mb-2">
+            No hay solicitudes aún
+          </h3>
+          <p className="text-gray-400 mb-6">
+            Comienza creando tu primera solicitud de marketing desde la pestaña
+            Solicitar
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Estadísticas de estado
+  const statusStats = [
+    {
+      status: "pending",
+      count: requests.filter((r) => r.status === "pending").length,
+      label: "Pendientes",
+      icon: "⏳",
+    },
+    {
+      status: "approved",
+      count: requests.filter((r) => r.status === "approved").length,
+      label: "Aprobadas",
+      icon: "✅",
+    },
+    {
+      status: "in_progress",
+      count: requests.filter((r) => r.status === "in_progress").length,
+      label: "En Progreso",
+      icon: "🔄",
+    },
+    {
+      status: "completed",
+      count: requests.filter((r) => r.status === "completed").length,
+      label: "Completadas",
+      icon: "🎉",
+    },
+    {
+      status: "rejected",
+      count: requests.filter((r) => r.status === "rejected").length,
+      label: "Rechazadas",
+      icon: "❌",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Header Profile Section */}
+      <HeaderPage overlayColor="blue">
+        <div className="flex flex-col w-full">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div>
+                <h3 className="text-2xl font-bold text-white">
+                  Mis Solicitudes de Marketing
+                </h3>
+                <p className="text-blue-100">
+                  Seguimiento de campañas • {requests.length} solicitudes
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Status badges */}
+          <div className="flex items-center space-x-3 mt-4">
+            <span
+              className="text-xs px-3 py-1 rounded-full bg-white text-gray-800"
+              style={{
+                border: "1px solid #60A5FA",
+              }}
+            >
+              📊 Panel Activo
+            </span>
+            <span
+              className="text-xs px-3 py-1 rounded-full bg-white text-gray-800"
+              style={{
+                border: "1px solid #60A5FA",
+              }}
+            >
+              🔄 Actualizado
+            </span>
+          </div>
+        </div>
+      </HeaderPage>
+
+      {/* Status Summary Metrics */}
+      <div
+        className="bg-gradient-to-r from-indigo-900/20 to-blue-900/20 rounded-xl border border-blue-500/30 p-6"
+        style={{ boxShadow: "0 8px 32px rgba(59, 130, 246, 0.15)" }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {statusStats.map((stat, index) => (
+            <div key={index} className="text-center">
+              <div className="text-3xl mb-3">{stat.icon}</div>
+              <div className="text-sm text-gray-100 mb-2 font-medium">
+                {stat.label}
+              </div>
+              <div className="text-2xl font-bold text-white mb-1">
+                {stat.count}
+              </div>
+              <div className="text-xs text-gray-500">Solicitudes</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Status Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {[
-          {
-            status: "pending",
-            count: (requests || []).filter((r) => r?.status === "pending")
-              .length,
-            color: "from-yellow-900/40 to-yellow-800/40 border-yellow-500/30",
-          },
-          {
-            status: "approved",
-            count: (requests || []).filter((r) => r?.status == "approved")
-              .length,
-            color: "from-green-900/40 to-green-800/40 border-green-500/30",
-          },
-          {
-            status: "in_progress",
-            count: (requests || []).filter((r) => r?.status === "in_progress")
-              .length,
-            color: "from-blue-900/40 to-blue-800/40 border-blue-500/30",
-          },
-          {
-            status: "completed",
-            count: (requests || []).filter((r) => r?.status === "completed")
-              .length,
-            color: "from-purple-900/40 to-purple-800/40 border-purple-500/30",
-          },
-          {
-            status: "rejected",
-            count: (requests || []).filter((r) => r?.status === "rejected")
-              .length,
-            color: "from-red-900/40 to-red-800/40 border-red-500/30",
-          },
-        ].map((item) => (
-          <div
-            key={item.status}
-            className={`bg-gradient-to-br ${item.color} border rounded-lg p-4 text-center`}
-          >
-            <div className="text-2xl mb-2">{getStatusIcon(item.status)}</div>
-            <div className="text-2xl font-bold text-white">{item.count}</div>
-            <div className="text-sm text-gray-400">
-              {getStatusText(item.status)}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Requests List */}
-      <div className="space-y-4">
-        {(requests || []).map((request) => (
+      {/* Requests Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {requests.map((request) => (
           <div
             key={request.id}
-            className="bg-gray-800/80 backdrop-blur border border-gray-700/50 rounded-lg p-6 hover:bg-gray-800/90 transition-colors"
+            className="bg-gradient-to-br from-violet-900/20 to-indigo-900/20 backdrop-blur border border-sky-500/40 rounded-xl p-6 shadow-md"
+            style={{ boxShadow: "0 8px 32px rgba(59, 130, 246, 0.15)" }}
           >
-            <div className="flex items-start justify-between">
+            {/* Header de la solicitud */}
+            <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-2">
-                  <h4 className="text-lg font-semibold text-white">
-                    {request.title}
-                  </h4>
+                <h4 className="text-lg font-semibold text-white mb-2">
+                  {request.title}
+                </h4>
+                <div className="flex items-center space-x-2">
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(
-                      request.status
-                    )}`}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border bg-gradient-to-r ${getStatusColor(request.status)}`}
                   >
                     {getStatusIcon(request.status)}{" "}
                     {getStatusText(request.status)}
                   </span>
                 </div>
+              </div>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                  <div>
-                    <p className="text-sm text-gray-400">Herramientas</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {(request.tools || []).map((tool, index) => (
-                        <span
-                          key={index}
-                          className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 rounded"
-                        >
-                          {tool}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+            {/* Información principal */}
+            <div className="grid grid-cols-1 gap-4 mb-4">
+              <div
+                className="bg-gray-800/80 rounded-lg p-4 border border-blue-500/20"
+                style={{ boxShadow: "0 4px 16px rgba(59, 130, 246, 0.1)" }}
+              >
+                <p className="text-sm text-white mb-2">💰 Presupuesto</p>
+                <p className="text-white font-semibold text-lg">
+                  {request.budget}
+                </p>
+              </div>
+            </div>
 
-                  <div>
-                    <p className="text-sm text-gray-400">Presupuesto</p>
-                    <p className="text-white font-medium">{request.budget}</p>
-                  </div>
+            {/* Herramientas */}
+            <div className="mb-4">
+              <p className="text-sm text-white mb-2">🚀 Herramientas</p>
+              <div className="flex flex-wrap gap-2">
+                {request.tools.map((tool, index) => (
+                  <span
+                    key={index}
+                    className="text-xs bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full border border-blue-500/30"
+                  >
+                    {tool}
+                  </span>
+                ))}
+              </div>
+            </div>
 
-                  <div>
-                    <p className="text-sm text-gray-400">Objetivo</p>
-                    <p className="text-white font-medium">
-                      {request.objective}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-gray-400">Timeline</p>
-                    <p className="text-white font-medium">{request.timeline}</p>
-                  </div>
-                </div>
-
-                {request.status === "in_progress" &&
-                  request.progress !== undefined && (
-                    <div className="mb-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-sm text-gray-400">Progreso</p>
-                        <span className="text-sm text-blue-400">
-                          {request.progress}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${request.progress}%` }}
-                        ></div>
+            {/* Segmentación */}
+            <div className="mb-4">
+              <p className="text-sm text-white mb-3">🎯 Segmentación</p>
+              <div className="grid grid-cols-2 gap-3">
+                {request.segmentation &&
+                  request.segmentation.countries.length > 0 && (
+                    <div className="bg-gray-700/30 rounded-lg p-3">
+                      <p className="text-xs text-white mb-1">🌍 Países</p>
+                      <div className="flex flex-wrap gap-1">
+                        {request.segmentation.countries
+                          .slice(0, 3)
+                          .map((country, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs bg-green-600/20 text-green-400 px-2 py-1 rounded"
+                            >
+                              {country}
+                            </span>
+                          ))}
+                        {request.segmentation.countries.length > 3 && (
+                          <span className="text-xs text-white">
+                            +{request.segmentation.countries.length - 3} más
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}
 
-                <div className="flex items-center justify-between text-sm text-gray-400">
-                  <span>Creado: {request.createdAt}</span>
-                  <span>Actualizado: {request.updatedAt}</span>
-                </div>
+                {request.segmentation &&
+                  request.segmentation.ages.length > 0 && (
+                    <div className="bg-gray-700/30 rounded-lg p-3">
+                      <p className="text-xs text-white mb-1">👥 Edades</p>
+                      <div className="flex flex-wrap gap-1">
+                        {request.segmentation.ages.map((age, idx) => (
+                          <span
+                            key={idx}
+                            className="text-xs bg-yellow-600/20 text-yellow-400 px-2 py-1 rounded"
+                          >
+                            {age}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                {request.notes && (
-                  <div className="mt-3 p-3 bg-gray-700/30 rounded-lg">
-                    <p className="text-sm text-gray-300">{request.notes}</p>
-                  </div>
-                )}
+                {request.segmentation &&
+                  request.segmentation.genders.length > 0 && (
+                    <div className="bg-gray-700/30 rounded-lg p-3">
+                      <p className="text-xs text-white mb-1">⚧️ Géneros</p>
+                      <div className="flex flex-wrap gap-1">
+                        {request.segmentation.genders.map((gender, idx) => (
+                          <span
+                            key={idx}
+                            className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded"
+                          >
+                            {gender}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {request.segmentation &&
+                  request.segmentation.genres.length > 0 && (
+                    <div className="bg-gray-700/30 rounded-lg p-3">
+                      <p className="text-xs text-white mb-1">
+                        🎵 Géneros Musicales
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {request.segmentation.genres
+                          .slice(0, 2)
+                          .map((genre, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs bg-pink-600/20 text-pink-400 px-2 py-1 rounded"
+                            >
+                              {genre}
+                            </span>
+                          ))}
+                        {request.segmentation.genres.length > 2 && (
+                          <span className="text-xs text-gray-400">
+                            +{request.segmentation.genres.length - 2} más
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
               </div>
+            </div>
+
+            {/* Progreso para solicitudes en progreso */}
+            {request.status === "in_progress" &&
+              request.progress !== undefined && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-sm text-white">📈 Progreso</p>
+                    <span className="text-sm text-blue-400">
+                      {request.progress}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${request.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+            {/* Notas */}
+            {request.notes && (
+              <div className="mb-4">
+                <p className="text-sm text-white mb-2">📝 Notas</p>
+                <div className="bg-gray-700/30 rounded-lg p-3">
+                  <p className="text-sm text-gray-300">{request.notes}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Footer con fechas */}
+            <div className="flex items-center justify-between text-xs text-white pt-4 border-t border-gray-700/50">
+              <span>📅 Creado: {request.createdAt}</span>
+              <span>🔄 Actualizado: {request.updatedAt}</span>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Empty State */}
-      {(!requests || requests.length === 0) && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">📋</div>
-          <h3 className="text-xl font-semibold text-white mb-2">
-            No hay solicitudes aún
-          </h3>
-          <p className="text-gray-400 mb-4">
-            Comienza creando tu primera solicitud de marketing
-          </p>
-          <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors">
-            Crear Primera Solicitud
-          </button>
-        </div>
-      )}
     </div>
   );
 }

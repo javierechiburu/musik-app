@@ -28,84 +28,6 @@ export interface MarketingStandard {
   terms: string[];
 }
 
-// Data de prueba para requests
-const mockMarketingRequests: MarketingRequest[] = [
-  {
-    id: "1",
-    title: "Campaña Lanzamiento Álbum 'Neon Dreams'",
-    tools: ["Google Ads", "Meta", "TikTok Ads"],
-    budget: "$2,500 - $5,000",
-    objective: "Incrementar streams",
-    timeline: "Este mes",
-    status: "in_progress",
-    createdAt: "2024-01-15",
-    updatedAt: "2024-01-20",
-    progress: 65,
-    notes:
-      "Campaña ejecutándose según lo planificado. Resultados por encima de las expectativas.",
-    segmentation: {
-      countries: ["Estados Unidos", "México", "España"],
-      genders: ["Mujer", "Hombre"],
-      ages: ["18-24", "24-34"],
-      genres: ["Pop", "Electronic Pop"],
-    },
-  },
-  {
-    id: "2",
-    title: "Promoción Single 'Electric Soul'",
-    tools: ["Spotify Marquee", "Meta"],
-    budget: "$1,000 - $2,000",
-    objective: "Reconocimiento de marca",
-    timeline: "Esta semana",
-    status: "completed",
-    createdAt: "2024-01-05",
-    updatedAt: "2024-01-12",
-    notes: "Campaña completada exitosamente. ROI del 340%.",
-    segmentation: {
-      countries: ["Chile", "Argentina", "Colombia"],
-      genders: ["Mujer", "Hombre", "No binario"],
-      ages: ["24-34", "34-44"],
-      genres: ["Electronic", "Dance"],
-    },
-  },
-  {
-    id: "3",
-    title: "Tour Promocional 2024",
-    tools: ["Google Ads", "Medios Digitales", "Medios Tradicionales"],
-    budget: "$10,000 - $15,000",
-    objective: "Conversiones",
-    timeline: "Este trimestre",
-    status: "pending",
-    createdAt: "2024-01-22",
-    updatedAt: "2024-01-22",
-    notes: "Esperando aprobación de presupuesto del equipo de management.",
-    segmentation: {
-      countries: ["Estados Unidos", "Canadá", "Reino Unido"],
-      genders: ["Mujer", "Hombre"],
-      ages: ["18-24", "24-34", "34-44"],
-      genres: ["Rock", "Pop Rock", "Alternative"],
-    },
-  },
-  {
-    id: "4",
-    title: "Campaña TikTok Challenge #MidnightVibes",
-    tools: ["TikTok Ads"],
-    budget: "$500 - $1,000",
-    objective: "Aumentar engagement",
-    timeline: "Inmediato",
-    status: "rejected",
-    createdAt: "2024-01-18",
-    updatedAt: "2024-01-19",
-    notes: "Rechazado por no cumplir con las políticas de contenido de TikTok.",
-    segmentation: {
-      countries: ["Estados Unidos", "México", "Brasil"],
-      genders: ["Mujer", "Hombre", "No binario"],
-      ages: ["18-24"],
-      genres: ["Pop", "Electronic", "Dance"],
-    },
-  },
-];
-
 // Data de prueba para estándares
 const mockMarketingStandards: MarketingStandard[] = [
   {
@@ -167,17 +89,21 @@ const mockMarketingStandards: MarketingStandard[] = [
   },
 ];
 
-// Función para obtener solicitudes de marketing
+// Función para obtener solicitudes de marketing desde la API
 export const fetchMarketingRequests = async (): Promise<MarketingRequest[]> => {
-  // Simulación de delay
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  const response = await fetch("/api/marketing-requests", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-  // Simulación de error ocasional
-  if (Math.random() > 0.9) {
-    throw new Error("Error simulado al obtener solicitudes de marketing");
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Error al obtener solicitudes: ${error.error}`);
   }
 
-  return mockMarketingRequests;
+  return await response.json();
 };
 
 // Función para obtener estándares de marketing
@@ -195,27 +121,11 @@ export const fetchMarketingStandards = async (): Promise<
   return mockMarketingStandards;
 };
 
-// Función para obtener una solicitud específica
-export const fetchMarketingRequest = async (
-  id: string
-): Promise<MarketingRequest | null> => {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-
-  const request = mockMarketingRequests.find((req) => req.id === id);
-  return request || null;
-};
-
-// Función para crear una nueva solicitud
+// Función para crear una nueva solicitud (solo para compatibilidad)
 export const createMarketingRequest = async (
   request: Omit<MarketingRequest, "id" | "createdAt" | "updatedAt">
 ): Promise<MarketingRequest> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // Simulación de error ocasional
-  if (Math.random() > 0.8) {
-    throw new Error("Error simulado al crear solicitud de marketing");
-  }
-
+  // Crear objeto temporal para compatibilidad
   const newRequest: MarketingRequest = {
     ...request,
     id: Date.now().toString(),
@@ -223,44 +133,108 @@ export const createMarketingRequest = async (
     updatedAt: new Date().toISOString(),
   };
 
-  // En una aplicación real, esto se guardaría en la base de datos
-  mockMarketingRequests.unshift(newRequest);
-
   return newRequest;
 };
 
-// Función para actualizar una solicitud
-export const updateMarketingRequest = async (
-  id: string,
-  updates: Partial<MarketingRequest>
-): Promise<MarketingRequest> => {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
-  const index = mockMarketingRequests.findIndex((req) => req.id === id);
-  if (index === -1) {
-    throw new Error("Solicitud no encontrada");
-  }
-
-  const updatedRequest = {
-    ...mockMarketingRequests[index],
-    ...updates,
-    updatedAt: new Date().toISOString(),
+// Función para insertar datos en la tabla marketing de Supabase
+export const insertMarketingData = async (formData: any) => {
+  // Transformar los datos del formulario al formato de la tabla
+  const marketingData = {
+    ids_paises: formData.segmentation.countries,
+    ids_generos: formData.segmentation.genders,
+    ids_edades: formData.segmentation.ages,
+    ids_generos_musicales: formData.segmentation.genres,
+    monto: parseInt(formData.budget.replace(/\D/g, "")) || 0,
+    descripcion: formData.additional_notes,
+    id_estado: 1,
+    id_usuario: "3f6427e4-78b4-476f-a442-0a6606f5db77",
   };
 
-  mockMarketingRequests[index] = updatedRequest;
+  // Llamar a la API route para insertar datos
+  const response = await fetch("/api/marketing", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(marketingData),
+  });
 
-  return updatedRequest;
-};
-
-// Función para eliminar una solicitud
-export const deleteMarketingRequest = async (id: string): Promise<boolean> => {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-
-  const index = mockMarketingRequests.findIndex((req) => req.id === id);
-  if (index === -1) {
-    throw new Error("Solicitud no encontrada");
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Error al insertar datos: ${error.error}`);
   }
 
-  mockMarketingRequests.splice(index, 1);
-  return true;
+  return await response.json();
+};
+
+// Función para enviar email de marketing
+export const sendMarketingEmailAPI = async (formData: any) => {
+  // Llamar a la API route para enviar email
+  const response = await fetch("/api/marketing-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Error al enviar email: ${error.error}`);
+  }
+
+  return await response.json();
+};
+
+// Función principal para procesar solicitud de marketing
+export const processMarketingRequest = async (formData: any) => {
+  try {
+    // 1. Insertar datos en Supabase
+    const dbResult = await insertMarketingData(formData);
+
+    // 2. Enviar email de notificación
+    const emailResult = await sendMarketingEmailAPI(formData);
+
+    // 3. Crear solicitud para el mock data
+    const requestData = formatMarketingRequestForAPI(formData);
+    const mockRequest = await createMarketingRequest(requestData);
+
+    return {
+      database: dbResult,
+      email: emailResult,
+      request: mockRequest,
+    };
+  } catch (error) {
+    console.error("Error procesando solicitud:", error);
+    throw error;
+  }
+};
+
+// Función para formatear datos para API
+const formatMarketingRequestForAPI = (formData: any) => {
+  const selectedTools = Object.entries(formData.tools)
+    .filter(([selected]) => selected)
+    .map(([tool]) => {
+      const toolNames: { [key: string]: string } = {
+        googleAds: "Google Ads",
+        marquee: "Spotify Marquee",
+        meta: "Meta Ads",
+        tiktokAds: "TikTok Ads",
+        kali: "Kali",
+        mediosDigitales: "Medios Digitales",
+        mediosTradicionales: "Medios Tradicionales",
+      };
+      return toolNames[tool] || tool;
+    });
+
+  return {
+    title: `Campaña Marketing - ${new Date().toLocaleDateString()}`,
+    tools: selectedTools,
+    budget: formData.budget || "No especificado",
+    objective: "Promoción musical",
+    timeline: "Por definir",
+    status: "pending" as const,
+    notes: formData.additional_notes || "Nueva solicitud creada.",
+    segmentation: formData.segmentation,
+  };
 };

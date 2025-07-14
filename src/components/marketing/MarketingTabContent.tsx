@@ -5,10 +5,10 @@ import MarketingRequestForm from "./MarketingRequestForm";
 import MarketingRequests from "./MarketingRequests";
 import MarketingStandards from "./MarketingStandards";
 import {
-  sendMarketingEmail,
   validateMarketingFormData,
   type MarketingFormData,
 } from "@/apis/emailAPI";
+import { processMarketingRequest } from "@/apis/marketingAPI";
 
 interface MarketingTabContentProps {
   readonly activeTab: string;
@@ -23,7 +23,8 @@ export default function MarketingTabContent({
 
   // Mutation para enviar solicitudes de marketing
   const createRequestMutation = useMutation({
-    mutationFn: (formData: MarketingFormData) => sendMarketingEmail(formData),
+    mutationFn: (formData: MarketingFormData) =>
+      processMarketingRequest(formData),
     onSuccess: () => {
       // Invalidar y refetch las solicitudes para mostrar la nueva
       queryClient.invalidateQueries({ queryKey: ["marketing-requests"] });
@@ -53,7 +54,7 @@ export default function MarketingTabContent({
       // Validar los datos del formulario
       validateMarketingFormData(formData);
 
-      // Ejecutar la mutación
+      // Ejecutar la mutación que procesará el flujo
       createRequestMutation.mutate(formData);
     } catch (error) {
       console.error("Error de validación:", error);
