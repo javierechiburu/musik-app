@@ -3,11 +3,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchArtistEarnings, getMockEarningsData } from "@/apis/sonosuiteAPI";
-import HeaderPage, {
-  HeaderIcon,
-  HeaderButton,
-} from "@/components/ui/HeaderPage";
+import HeaderPage from "@/components/ui/HeaderPage";
 import { LoadingSpinner } from "@/components/ui/Loadings";
+import Image from "next/image";
 
 interface WithdrawalRequest {
   id: string;
@@ -32,121 +30,130 @@ interface EarningsData {
   }>;
 }
 
-function WalletHeader() {
+function WalletProfile() {
   return (
-    <HeaderPage overlayColor="green" height="md">
-      <div className="flex items-center justify-between w-full">
-        <div className="flex items-center space-x-4">
-          <HeaderIcon colorGradient="from-green-500 to-emerald-500">
-            <svg
-              className="w-8 h-8 text-white"
-              fill="currentColor"
-              viewBox="0 0 24 24"
+    <HeaderPage overlayColor="blue" height="md">
+      <div className="flex flex-col w-full">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div
+              className="w-32 h-32 rounded-full flex items-center justify-center"
+              style={{
+                background: "linear-gradient(145deg, #10B981 0%, #059669 100%)",
+                boxShadow: "0 8px 16px rgba(16, 185, 129, 0.3)",
+                border: "3px solid rgba(16, 185, 129, 0.2)",
+              }}
             >
-              <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-            </svg>
-          </HeaderIcon>
-          <div>
-            <h3 className="text-2xl font-bold text-white drop-shadow-lg">
-              Mi Billetera
-            </h3>
-            <p className="text-green-200 drop-shadow-md">
-              Gestiona tus ingresos y solicitudes de retiro
-            </p>
+              <svg
+                className="w-16 h-16 text-white"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-white">
+                Mi Billetera Digital
+              </h3>
+              <p className="text-green-100">
+                Gestión financiera para artistas • Retiros y Ganancias • FADER
+                Records
+              </p>
+            </div>
           </div>
+        </div>
+
+        {/* Status badges */}
+        <div className="flex items-center space-x-3 mt-4">
+          <span
+            className="text-xs px-3 py-1 rounded-full bg-white text-gray-800"
+            style={{
+              border: "1px solid #10B981",
+            }}
+          >
+            💰 Cuenta Verificada
+          </span>
+          <span
+            className="text-xs px-3 py-1 rounded-full bg-white text-gray-800"
+            style={{
+              border: "1px solid #10B981",
+            }}
+          >
+            ✅ Disponible para Retiros
+          </span>
+          <span
+            className="text-xs px-3 py-1 rounded-full bg-white text-gray-800"
+            style={{
+              border: "1px solid #10B981",
+            }}
+          >
+            🏦 Cuenta Premium
+          </span>
         </div>
       </div>
     </HeaderPage>
   );
 }
 
-function EarningsOverview({ earnings }: { earnings: EarningsData }) {
+function ResumenGanancias() {
   const metricas = [
     {
-      icon: (
-        <svg
-          className="w-6 h-6 text-white"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M7 4V2C7 1.45 7.45 1 8 1S9 1.45 9 2V4H15V2C15 1.45 15.45 1 16 1S17 1.45 17 2V4H20C21.11 4 22 4.89 22 6V20C22 21.11 21.11 22 20 22H4C2.89 22 2 21.11 2 20V6C2 4.89 2.89 4 4 4H7M4 8V20H20V8H4M12 9L17 14H14V18H10V14H7L12 9Z" />
-        </svg>
-      ),
-      label: "Total Generado",
-      value: `$${earnings.totalEarnings.toLocaleString()}`,
-      description: "Ingresos de por vida",
-      color: "from-green-500 to-emerald-500",
+      icon: "💰",
+      label: "Balance Total",
+      value: "$4,250",
+      description: "Ganancias Acumuladas",
     },
     {
-      icon: (
-        <svg
-          className="w-6 h-6 text-white"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-        </svg>
-      ),
+      icon: "💳",
       label: "Disponible",
-      value: `$${earnings.availableBalance.toLocaleString()}`,
-      description: "Listo para retirar",
-      color: "from-blue-500 to-cyan-500",
+      value: "$2,140",
+      description: "Listo para Retirar",
     },
     {
-      icon: (
-        <svg
-          className="w-6 h-6 text-white"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
-        </svg>
-      ),
+      icon: "⏳",
       label: "Pendiente",
-      value: `$${earnings.pendingPayments.toLocaleString()}`,
-      description: "En procesamiento",
-      color: "from-yellow-500 to-orange-500",
+      value: "$890",
+      description: "En Procesamiento",
     },
     {
-      icon: (
-        <svg
-          className="w-6 h-6 text-white"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
-        </svg>
-      ),
-      label: "Último Pago",
-      value: earnings.lastPaymentDate,
-      description: "Fecha del retiro",
-      color: "from-purple-500 to-pink-500",
+      icon: "📅",
+      label: "Último Retiro",
+      value: "15 Jul",
+      description: "Hace 2 días",
+    },
+    {
+      icon: "📊",
+      label: "Este Mes",
+      value: "$1,320",
+      description: "Julio 2025",
     },
   ];
 
   return (
-    <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-lg p-6 border border-blue-900/20 shadow mb-6">
-      <h3 className="text-xl font-bold text-white mb-6">Resumen de Ingresos</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metricas.map((metrica, index) => (
-          <div
-            key={index}
-            className="bg-gray-800/80 backdrop-blur border border-gray-700/50 rounded-lg p-4"
-          >
-            <div className="flex items-center space-x-3 mb-3">
-              <div
-                className={`w-10 h-10 bg-gradient-to-r ${metrica.color} rounded-lg flex items-center justify-center`}
-              >
-                {metrica.icon}
+    <div
+      className="bg-gradient-to-r from-emerald-900/20 to-green-900/20 rounded-xl border border-green-500/30"
+      style={{ boxShadow: "0 8px 32px rgba(16, 185, 129, 0.15)" }}
+    >
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {metricas.map((metrica, index) => (
+            <div key={index} className="text-center">
+              <div className="text-3xl mb-3">{metrica.icon}</div>
+              <div className="text-sm text-gray-100 mb-2 font-medium">
+                {metrica.label}
               </div>
-              <div className="text-sm text-gray-400">{metrica.label}</div>
+              <div className="text-2xl font-bold text-white mb-1">
+                {metrica.value}
+              </div>
+              {metrica.description && (
+                <div className="text-xs text-gray-500">
+                  {metrica.description}
+                </div>
+              )}
             </div>
-            <div className="text-2xl font-bold text-white mb-1">
-              {metrica.value}
-            </div>
-            <div className="text-xs text-gray-500">{metrica.description}</div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -283,7 +290,216 @@ function WithdrawalForm({
   );
 }
 
-function WithdrawalHistory({ requests }: { requests: WithdrawalRequest[] }) {
+function SolicitudRetiroBanner({
+  onSubmit,
+}: {
+  onSubmit: (request: Partial<WithdrawalRequest>) => void;
+}) {
+  const [formData, setFormData] = useState({
+    amount: "",
+    method: "bank_transfer",
+    accountInfo: "",
+    description: "",
+  });
+
+  const [showForm, setShowForm] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({
+      amount: parseFloat(formData.amount),
+      method: formData.method,
+      accountInfo: formData.accountInfo,
+      description: formData.description,
+    });
+    setFormData({
+      amount: "",
+      method: "bank_transfer",
+      accountInfo: "",
+      description: "",
+    });
+    setShowForm(false);
+  };
+
+  return (
+    <div
+      className="relative rounded-xl p-8 overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%)",
+        border: "1px solid rgba(16, 185, 129, 0.3)",
+        boxShadow: "0 20px 40px rgba(16, 185, 129, 0.3)",
+      }}
+    >
+      {/* Fondo con imagen */}
+      <div className="absolute inset-0">
+        <Image
+          src="/FADER-1920X1080.jpg"
+          alt="Withdraw Background"
+          fill
+          className="object-cover opacity-10"
+          priority
+        />
+      </div>
+
+      {/* Overlay gradient */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.9) 50%, rgba(4, 120, 87, 0.85) 100%)",
+        }}
+      ></div>
+
+      {/* Contenido */}
+      <div className="relative z-10 text-center text-white">
+        {!showForm ? (
+          <>
+            <div className="text-6xl mb-4">💰</div>
+            <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">
+              ¡Retira tus Ganancias!
+            </h2>
+            <p className="text-xl mb-6 drop-shadow-md opacity-95 max-w-2xl mx-auto">
+              Tienes <span className="font-bold text-2xl">$2,140</span>{" "}
+              disponibles para retirar. Solicita tu retiro de forma rápida y
+              segura.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
+                <div className="text-2xl mb-2">⚡</div>
+                <p className="font-semibold">Procesamiento Rápido</p>
+                <p className="text-sm opacity-90">24-48 horas hábiles</p>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
+                <div className="text-2xl mb-2">🔒</div>
+                <p className="font-semibold">100% Seguro</p>
+                <p className="text-sm opacity-90">Transferencias encriptadas</p>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
+                <div className="text-2xl mb-2">💳</div>
+                <p className="font-semibold">Múltiples Métodos</p>
+                <p className="text-sm opacity-90">Banco, PayPal, Crypto</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-12 py-6 bg-white text-green-600 rounded-2xl font-bold text-xl hover:bg-gray-100 transition-all duration-300 hover:scale-105 shadow-2xl"
+            >
+              💸 Solicitar Retiro Ahora
+            </button>
+          </>
+        ) : (
+          <div className="max-w-2xl mx-auto">
+            <div className="text-4xl mb-4">📝</div>
+            <h3 className="text-2xl font-bold mb-6">
+              Completa tu solicitud de retiro
+            </h3>
+
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="text-left">
+                  <label className="block text-sm font-medium text-white mb-2">
+                    💰 Monto a retirar (USD)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    max="2140"
+                    value={formData.amount}
+                    onChange={(e) =>
+                      setFormData({ ...formData, amount: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:border-white focus:ring-2 focus:ring-white/20"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+
+                <div className="text-left">
+                  <label className="block text-sm font-medium text-white mb-2">
+                    💳 Método de pago
+                  </label>
+                  <select
+                    value={formData.method}
+                    onChange={(e) =>
+                      setFormData({ ...formData, method: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white focus:border-white focus:ring-2 focus:ring-white/20"
+                  >
+                    <option value="bank_transfer" className="text-gray-800">
+                      Transferencia Bancaria
+                    </option>
+                    <option value="paypal" className="text-gray-800">
+                      PayPal
+                    </option>
+                    <option value="crypto" className="text-gray-800">
+                      Criptomonedas
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="text-left">
+                <label className="block text-sm font-medium text-white mb-2">
+                  🏦 Información de la cuenta
+                </label>
+                <textarea
+                  value={formData.accountInfo}
+                  onChange={(e) =>
+                    setFormData({ ...formData, accountInfo: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:border-white focus:ring-2 focus:ring-white/20"
+                  placeholder="Ej: Banco Estado, Cuenta Corriente 123456789, RUT 12.345.678-9"
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div className="text-left">
+                <label className="block text-sm font-medium text-white mb-2">
+                  📝 Descripción adicional (opcional)
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-white/70 focus:border-white focus:ring-2 focus:ring-white/20"
+                  placeholder="Información adicional sobre el retiro..."
+                  rows={2}
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  type="submit"
+                  className="px-8 py-4 bg-white text-green-600 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 hover:scale-105"
+                >
+                  ✅ Confirmar Retiro
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="px-8 py-4 bg-green-600/80 backdrop-blur-sm rounded-xl font-semibold text-lg border border-green-500/50 hover:bg-green-500/80 transition-all duration-300"
+                >
+                  ❌ Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HistorialRetiros({ requests }: { requests: WithdrawalRequest[] }) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "approved":
@@ -490,46 +706,23 @@ export default function MiBilleteraPage() {
     }
   };
 
-  if(isLoadingEarnings){
-    return <LoadingSpinner />
+  if (isLoadingEarnings) {
+    return <LoadingSpinner />;
   }
 
   return (
     <div className="space-y-6">
-      <WalletHeader />
+      {/* Header Profile Section */}
+      <WalletProfile />
 
-          <EarningsOverview earnings={earningsData} />
+      {/* Resumen de ganancias */}
+      <ResumenGanancias />
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <WithdrawalForm onSubmit={handleWithdrawalSubmit} />
+      {/* Sección prominente para solicitar retiro */}
+      <SolicitudRetiroBanner onSubmit={handleWithdrawalSubmit} />
 
-            <div className="bg-gray-800/80 backdrop-blur border border-gray-700/50 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-white mb-4">
-                Ingresos por Mes
-              </h3>
-              <div className="space-y-4">
-                {earningsData.monthlyEarnings.map((month, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg"
-                  >
-                    <div>
-                      <div className="text-white font-medium">
-                        {month.month}
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        {month.streams.toLocaleString()} streams
-                      </div>
-                    </div>
-                    <div className="text-green-400 font-bold">
-                      ${month.amount.toLocaleString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-      <WithdrawalHistory requests={withdrawalRequests} />
+      {/* Solicitudes de retiro */}
+      <HistorialRetiros requests={withdrawalRequests} />
     </div>
   );
 }

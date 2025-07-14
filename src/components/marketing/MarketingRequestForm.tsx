@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import HeaderPage from "../ui/HeaderPage";
 
 interface MarketingRequestFormProps {
   readonly onSubmit: (formData: any) => void;
@@ -243,82 +244,84 @@ export default function MarketingRequestForm({
   return (
     <div className="space-y-8">
       {/* Header con progreso mejorado */}
-      <div className="bg-gradient-to-r from-violet-900/20 to-indigo-900/20 rounded-xl p-8 border border-purple-500/20">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-              <svg
-                className="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
-                />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">
-                Solicitar Campaña de Marketing
-              </h2>
-              <p className="text-purple-200 text-base">
-                Crea una campaña personalizada para tu música
-              </p>
-            </div>
-          </div>
-          <div className="hidden md:block text-right">
-            <p className="text-purple-300 text-sm">Paso {currentStep} de 3</p>
-            <div className="w-32 bg-purple-800/50 rounded-full h-2 mt-2">
-              <div
-                className="bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${(currentStep / 3) * 100}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stepper mejorado */}
-        <div className="flex items-center justify-center space-x-8">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all duration-300 ${
-                    currentStep >= step.id
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-110"
-                      : "bg-gray-700/50 text-gray-400"
-                  }`}
+      <HeaderPage overlayColor="pink">
+        <div className="p-6 w-full">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-violet-500 rounded-xl flex items-center justify-center shadow-lg">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {step.icon}
-                </div>
-                <div className="text-center mt-2">
-                  <p
-                    className={`text-sm font-medium ${
-                      currentStep >= step.id ? "text-white" : "text-gray-400"
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white">
+                  Solicitar Campaña de Marketing
+                </h2>
+                <p className="text-purple-200 text-base">
+                  Crea una campaña personalizada para tu música
+                </p>
+              </div>
+            </div>
+            <div className="hidden md:block text-right">
+              <p className="text-white text-sm">Paso {currentStep} de 3</p>
+              <div className="w-32 bg-purple-800/50 rounded-full h-2 mt-2">
+                <div
+                  className="bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${(currentStep / 3) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stepper mejorado */}
+          <div className="flex items-center justify-center space-x-2">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all duration-300 ${
+                      currentStep >= step.id
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-110"
+                        : "bg-gray-700/50 text-gray-400"
                     }`}
                   >
-                    {step.title}
-                  </p>
-                  <p className="text-xs text-gray-500">{step.description}</p>
+                    {step.icon}
+                  </div>
+                  <div className="text-center mt-2">
+                    <p
+                      className={`text-sm font-medium ${
+                        currentStep >= step.id ? "text-white" : "text-gray-400"
+                      }`}
+                    >
+                      {step.title}
+                    </p>
+                    <p className="text-xs text-gray-500">{step.description}</p>
+                  </div>
                 </div>
+                {index < steps.length - 1 && (
+                  <div
+                    className={`w-16 h-0.5 mx-4 transition-all duration-300 ${
+                      currentStep > step.id
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                        : "bg-gray-700"
+                    }`}
+                  ></div>
+                )}
               </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`w-16 h-0.5 mx-4 transition-all duration-300 ${
-                    currentStep > step.id
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500"
-                      : "bg-gray-700"
-                  }`}
-                ></div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      </HeaderPage>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Paso 1: Herramientas */}
