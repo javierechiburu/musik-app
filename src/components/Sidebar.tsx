@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { cn } from "@/config/clsx/clsxMerge";
 
 const analyticsMenuItems = [
@@ -157,6 +158,28 @@ const userMenuItems = [
   },
 ];
 
+const adminMenuItems = [
+  {
+    name: "Registrar",
+    href: "/home/admin/registrar",
+    icon: (
+      <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+        />
+      </svg>
+    ),
+  },
+];
+
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -164,6 +187,12 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const role = localStorage.getItem('logged_in_user_role');
+    setUserRole(role);
+  }, []);
 
   return (
     <>
@@ -234,6 +263,74 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         <nav className="mt-6 flex-1 overflow-y-auto">
+          {/* Admin Section - Only show for admin users */}
+          {userRole === 'admin' && (
+            <div className="px-3 mb-6">
+              <div
+                className="flex items-center mb-3 px-3 py-2 rounded-lg"
+                style={{
+                  background: "rgba(34, 197, 94, 0.05)",
+                  border: "1px solid rgba(34, 197, 94, 0.2)",
+                }}
+              >
+                <svg
+                  className="w-4 h-4 mr-2 text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  />
+                </svg>
+                <h3
+                  className="text-xs font-semibold uppercase tracking-wider text-green-400"
+                >
+                  ADMIN
+                </h3>
+              </div>
+              {adminMenuItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={onClose}
+                    className={cn(
+                      "flex items-center px-3 py-3 mb-1 rounded-lg transition-all duration-300 group relative",
+                      {
+                        // Estilos cuando está activo
+                        "bg-green-500 text-white shadow-md shadow-green-500/30":
+                          isActive,
+
+                        // Estilos cuando NO está activo
+                        "text-white hover:bg-green-500/10 hover:text-green-500 hover:border-l-4 hover:border-green-500":
+                          !isActive,
+                      }
+                    )}
+                  >
+                    <span
+                      className={cn("mr-3 transition-colors duration-300", {
+                        "text-green-300": isActive,
+                      })}
+                    >
+                      {item.icon}
+                    </span>
+
+                    <span className="font-medium text-sm">{item.name}</span>
+
+                    {isActive && (
+                      <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
           {/* Analytics Section */}
           <div className="px-3 mb-6">
             <div
