@@ -17,7 +17,7 @@ export default function UsuariosPage() {
       const { data: perfil } = await supabase
         .from('user')
         .select('role')
-        .eq('id', session.user.id)
+        .eq('id', session?.user?.id)
         .single()
 
       if (perfil?.role !== 'admin') {
@@ -55,7 +55,7 @@ export default function UsuariosPage() {
       return
     }
 
-    const userId = signUpData.user.id
+    const userId = signUpData?.user?.id
     const { error: insertError } = await supabase.from('user').insert([
       {
         id: userId,
