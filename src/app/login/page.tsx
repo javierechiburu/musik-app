@@ -30,6 +30,20 @@ export default function LoginPage() {
       return;
     }
 
+    const { data: { user } } = await supabase.auth.getUser()
+     console.log('user', user)
+    const { data: perfil } = await supabase
+      .from('usuario')
+      .select('role')
+      .eq('auth_id', user?.id)
+      .single();
+
+     
+      console.log('perfil', perfil)
+    if (perfil) {
+      localStorage.setItem('logged_in_user_role', perfil?.role);
+    }
+
     router.push('/home');
   };
 
