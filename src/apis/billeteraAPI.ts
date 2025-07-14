@@ -52,7 +52,7 @@ export const insertWithdrawalRequest = async (requestData: WithdrawalRequestData
 };
 
 // Función para obtener solicitudes de retiro del usuario
-export const fetchWithdrawalRequests = async (id_usuario: string): Promise<BilleteraRecord[]> => {
+export const fetchWithdrawalRequests = async (id_usuario: string = "default_user_id"): Promise<BilleteraRecord[]> => {
   try {
     const response = await fetch(`/api/billetera?id_usuario=${id_usuario}`);
 
@@ -64,6 +64,17 @@ export const fetchWithdrawalRequests = async (id_usuario: string): Promise<Bille
     return result.data || [];
   } catch (error) {
     console.error("Error al obtener solicitudes de retiro:", error);
+    throw error;
+  }
+};
+
+// Función para obtener y formatear solicitudes de retiro
+export const fetchFormattedWithdrawalRequests = async (id_usuario: string = "default_user_id") => {
+  try {
+    const records = await fetchWithdrawalRequests(id_usuario);
+    return records.map(formatWithdrawalRequest);
+  } catch (error) {
+    console.error("Error al obtener solicitudes formateadas:", error);
     throw error;
   }
 };

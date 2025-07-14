@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchArtistEarnings, getMockEarningsData } from "@/apis/sonosuiteAPI";
-import { processWithdrawalRequest } from "@/apis/billeteraAPI";
+import { processWithdrawalRequest, fetchFormattedWithdrawalRequests } from "@/apis/billeteraAPI";
 import { LoadingSpinner } from "@/components/ui/Loadings";
 
 // Importar componentes separados
@@ -38,25 +38,15 @@ interface EarningsData {
 export default function MiBilleteraPage() {
   const [withdrawalRequests, setWithdrawalRequests] = useState<
     WithdrawalRequest[]
-  >([
-    {
-      id: "1",
-      amount: 1250.0,
-      method: "Transferencia Bancaria",
-      accountInfo: "Banco Estado - 123456789",
-      status: "approved",
-      requestDate: "2025-07-10",
-      processedDate: "2025-07-11",
-    },
-    {
-      id: "2",
-      amount: 750.5,
-      method: "PayPal",
-      accountInfo: "artist@email.com",
-      status: "pending",
-      requestDate: "2025-07-12",
-    },
-  ]);
+  >([]);
+
+  // Obtener datos reales de solicitudes de retiro
+  const { data: withdrawalData, isLoading: isLoadingWithdrawals, refetch: refetchWithdrawals } = useQuery({
+    queryKey: ["withdrawal-requests", "default_user_id"],
+    queryFn: () => fetchFormattedWithdrawalRequests("default_user_id"),
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    retry: 2,
+  });
 
   // Usar datos de Sonosuite o mock data
   const { data: sonosuiteData, isLoading: isLoadingEarnings } = useQuery({
@@ -115,7 +105,8 @@ export default function MiBilleteraPage() {
         description: requestData.description,
       };
 
-      setWithdrawalRequests((prev) => [newRequest, ...prev]);
+      // Refrescar datos de la base de datos
+      await refetchWithdrawals();
 
       if (result.database.success) {
         alert("Solicitud guardada exitosamente en la base de datos");
@@ -130,9 +121,12 @@ export default function MiBilleteraPage() {
     }
   };
 
-  if (isLoadingEarnings) {
+  if (isLoadingEarnings || isLoadingWithdrawals) {
     return <LoadingSpinner />;
   }
+
+  // Usar datos reales de la base de datos
+  const currentWithdrawalRequests = withdrawalData || [];
 
   return (
     <div className="space-y-6">
@@ -146,7 +140,7 @@ export default function MiBilleteraPage() {
       <SolicitudRetiroBanner onSubmit={handleWithdrawalSubmit} />
 
       {/* Solicitudes de retiro */}
-      <HistorialRetiros requests={withdrawalRequests} />
+      <HistorialRetiros requests={currentWithdrawalRequests} />
     </div>
   );
 }
