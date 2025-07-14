@@ -11,6 +11,8 @@ export const LoadingSpinner = () => {
             src="/FADER-FOTOPERFIL.jpg"
             alt="FADER CD"
             className="w-full h-full object-cover rounded-full"
+            width={300}
+            height={300}
           />
         </div>
 
