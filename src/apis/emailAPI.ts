@@ -52,6 +52,13 @@ interface WithdrawalEmailData {
   description?: string;
 }
 
+interface WelcomeEmailData {
+  email: string;
+  fullname: string;
+  tempPassword: string;
+  username: string;
+}
+
 // Función para enviar email de verificación
 export const sendVerificationEmail = async (
   data: VerificationEmailData
@@ -193,4 +200,40 @@ export const validateMarketingFormData = (
   }
 
   return true;
+};
+
+// Función para enviar email de bienvenida
+export const sendWelcomeEmail = async (
+  data: WelcomeEmailData
+): Promise<EmailResponse> => {
+  try {
+    const response = await axiosInstance.post(
+      "/api/send-welcome-email",
+      data
+    );
+
+    if (response.status !== 200) {
+      console.error("Error al enviar email de bienvenida");
+
+      return {
+        success: false,
+        message: "Error al enviar el email de bienvenida",
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    return {
+      success: true,
+      message: "Email de bienvenida enviado exitosamente",
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    console.error("Error al enviar email de bienvenida:", error);
+
+    return {
+      success: false,
+      message: "Error al enviar el email de bienvenida",
+      timestamp: new Date().toISOString(),
+    };
+  }
 };

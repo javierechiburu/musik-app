@@ -14,16 +14,25 @@ const getTokenFromCookies = (): string | null => {
 // Función para obtener token desde Supabase
 const getTokenFromSupabase = async (): Promise<string | null> => {
   try {
+    console.log('🔍 Intentando obtener token desde Supabase...');
     const { createClient } = await import('@supabase/supabase-js');
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
     
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('📋 Sesión de Supabase:', { 
+      hasSession: !!session, 
+      hasUser: !!session?.user,
+      userEmail: session?.user?.email || 'N/A',
+      hasToken: !!session?.access_token,
+      error: error?.message || 'N/A'
+    });
+    
     return session?.access_token || null;
   } catch (error) {
-    console.error('Error getting token from Supabase:', error);
+    console.error('❌ Error getting token from Supabase:', error);
     return null;
   }
 };
@@ -32,36 +41,43 @@ const getTokenFromSupabase = async (): Promise<string | null> => {
 axiosInstance.interceptors.request.use(
   async (config) => {
     try {
-      // Intentar obtener token desde cookies primero
-      let token = getTokenFromCookies();
+      console.log('🚀 === INTERCEPTOR DE AXIOS EJECUTÁNDOSE ===');
+      console.log('📍 URL de la petición:', config.url);
       
-      // Si no hay token en cookies, intentar obtenerlo desde Supabase
+      // Siempre intentar obtener token desde Supabase (más confiable)
+      let token = await getTokenFromSupabase();
+      
+      // Si no hay token en Supabase, intentar cookies como fallback
       if (!token) {
-        token = await getTokenFromSupabase();
-        
-        // Si obtenemos token desde Supabase, sincronizarlo con cookies
-        if (token && typeof document !== 'undefined') {
-          document.cookie = `token=${token}; path=/; max-age=86400; secure; samesite=strict`;
-        }
+        console.log('🍪 Intentando obtener token desde cookies...');
+        token = getTokenFromCookies();
+        console.log('🍪 Token desde cookies:', token ? 'Encontrado' : 'No encontrado');
       }
 
       // Agregar token al header si existe
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('✅ Token agregado al request exitosamente');
+        console.log('🔑 Primeros caracteres del token:', token.substring(0, 20) + '...');
+      } else {
+        console.warn('⚠️ NO SE ENCONTRÓ TOKEN - La petición será sin autorización');
       }
       
       // Agregar headers adicionales de seguridad
       config.headers['X-Requested-With'] = 'XMLHttpRequest';
       config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
       
+      console.log('📤 Headers finales:', config.headers);
+      console.log('🏁 === FIN DEL INTERCEPTOR ===');
+      
       return config;
     } catch (error) {
-      console.error('Error in request interceptor:', error);
+      console.error('❌ Error in request interceptor:', error);
       return config;
     }
   },
   (error) => {
-    console.error('Request interceptor error:', error);
+    console.error('❌ Request interceptor error:', error);
     return Promise.reject(new Error(error));
   }
 );

@@ -22,57 +22,14 @@ export default function RegistrarPage() {
     },
   });
 
-  const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  const validateForm = (): string[] => {
-    const validationErrors = [];
-
-    if (!formData.nombreCompleto.trim()) {
-      validationErrors.push("El nombre completo es requerido");
-    }
-
-    if (!formData.nombreArtista.trim()) {
-      validationErrors.push("El nombre de artista es requerido");
-    }
-
-    /*  if (!formData.fechaNacimiento) {
-       validationErrors.push('La fecha de nacimiento es requerida');
-     } */
-
-    if (!formData.correo.trim()) {
-      validationErrors.push("El correo electrónico es requerido");
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
-      validationErrors.push("El formato del correo electrónico no es válido");
-    }
-
-    /*  if (!formData.telefono.trim()) {
-       validationErrors.push('El número de teléfono es requerido');
-     }
- 
-     if (!formData.pais.trim()) {
-       validationErrors.push('El país es requerido');
-     }
- 
-     if (!formData.ciudad.trim()) {
-       validationErrors.push('La ciudad es requerida');
-     }
- 
-     if (!formData.generoMusical.trim()) {
-       validationErrors.push('El género musical es requerido');
-     } */
-
-    return validationErrors;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors([]);
-    setSuccess(false);
 
     const validationErrors = validateUserForm(formData);
     if (validationErrors.length > 0) {
@@ -385,8 +342,6 @@ export default function RegistrarPage() {
                       tiktok: "",
                     },
                   });
-                  setErrors([]);
-                  setSuccess(false);
                 }}
                 className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
               >

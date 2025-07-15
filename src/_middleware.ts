@@ -56,19 +56,48 @@ export async function middleware(request: NextRequest) {
       return regex.test(pathname);
     });
 
-    // Redirigir de /login a /home si ya está autenticado
+    // Permitir acceso a /login incluso si está autenticado 
+    // El componente de login manejará la redirección basada en must_change_password
     if (isPublicPath) {
-      if (pathname === "/login" && isAuthenticated) {
-        return NextResponse.redirect(new URL("/home", request.url));
-      }
+      // COMENTADO: No redirigir automáticamente desde login
+      // if (pathname === "/login" && isAuthenticated) {
+      //   return NextResponse.redirect(new URL("/home", request.url));
+      // }
       return response;
     }
 
     // Redirigir desde / a la ruta adecuada
     if (pathname === "/") {
-      return NextResponse.redirect(
-        new URL(isAuthenticated ? "/home" : "/login", request.url)
-      );
+      if (isAuthenticated) {
+        // Obtener información del usuario para verificar si debe cambiar contraseña
+        try {
+          const supabase = createMiddlewareClient({ req: request, res: response });
+          const { data: userData, error: userError } = await supabase
+            .from("usuario")
+            .select("must_change_password")
+            .eq("auth_id", session?.user.id)
+            .single();
+
+          console.log("Middleware - verificando must_change_password:", {
+            userId: session?.user.id,
+            mustChangePassword: userData?.must_change_password,
+            userError
+          });
+
+          // Si el usuario debe cambiar contraseña, redirigir a login
+          if (userData?.must_change_password) {
+            return NextResponse.redirect(new URL("/login", request.url));
+          }
+        } catch (error) {
+          console.error("Error checking must_change_password in middleware:", error);
+        }
+        
+        // Usuario autenticado sin necesidad de cambiar contraseña
+        return NextResponse.redirect(new URL("/home", request.url));
+      } else {
+        // Usuario no autenticado
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
     }
 
     // Si no está autenticado y la ruta no es pública

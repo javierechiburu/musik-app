@@ -16,10 +16,11 @@ interface CreateUserResponse {
   error?: string;
 }
 
-// Funci髇 para crear usuario
+// Funci贸n para crear usuario
 export const createUser = async (userData: UserData): Promise<CreateUserResponse> => {
   try {
-    const response = await axiosInstance.post("/api/create-user", userData);
+    console.log('馃殌 Enviando datos a API:', userData);
+    const response = await axiosInstance.post("/api/debug-create-user", userData);
     
     return {
       success: true,
@@ -39,7 +40,7 @@ export const createUser = async (userData: UserData): Promise<CreateUserResponse
     } else if (error.request) {
       return {
         success: false,
-        message: "Error de conexi髇. Verifica tu conexi髇 a internet e int閚talo de nuevo.",
+        message: "Error de conexi贸n. Verifica tu conexi贸n a internet e int茅ntalo de nuevo.",
         error: "Network error",
       };
     } else {
@@ -52,7 +53,7 @@ export const createUser = async (userData: UserData): Promise<CreateUserResponse
   }
 };
 
-// Funci髇 para validar los datos del formulario (puede ser reutilizada)
+// Funci贸n para validar los datos del formulario (puede ser reutilizada)
 export const validateUserForm = (formData: any): string[] => {
   const errors: string[] = [];
 
@@ -61,24 +62,24 @@ export const validateUserForm = (formData: any): string[] => {
   }
 
   if (!formData.correo || formData.correo.trim() === "") {
-    errors.push("El correo electr髇ico es requerido");
+    errors.push("El correo electr贸nico es requerido");
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
-    errors.push("El formato del correo electr髇ico no es v醠ido");
+    errors.push("El formato del correo electr贸nico no es v谩lido");
   }
 
   if (!formData.nombreArtista || formData.nombreArtista.trim() === "") {
     errors.push("El nombre de artista es requerido");
   }
 
-  // Agregar m醩 validaciones seg鷑 sea necesario
+  // Agregar m谩s validaciones seg煤n sea necesario
   if (formData.telefono && !/^\+?[\d\s-()]+$/.test(formData.telefono)) {
-    errors.push("El formato del tel閒ono no es v醠ido");
+    errors.push("El formato del tel茅fono no es v谩lido");
   }
 
   return errors;
 };
 
-// Funci髇 para formatear datos del formulario a formato de API
+// Funci贸n para formatear datos del formulario a formato de API
 export const formatUserData = (formData: any): UserData => {
   return {
     email: formData.correo,
