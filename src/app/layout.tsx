@@ -4,7 +4,6 @@ import "./globals.css";
 import { QueryClientProviderWrapper } from "@/contexts/QueryClientContext";
 
 // Inicializar axios interceptors
-import "@/config/axios/axiosSetup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FADER Records - Musik App",
+  title: "FADER",
   description: "Plataforma de gestión musical para artistas",
 };
 
@@ -31,9 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryClientProviderWrapper>
-          {children}
-        </QueryClientProviderWrapper>
+        <QueryClientProviderWrapper>{children}</QueryClientProviderWrapper>
       </body>
     </html>
   );

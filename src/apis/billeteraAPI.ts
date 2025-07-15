@@ -1,5 +1,5 @@
 import { axiosInstance } from "@/config/axios/axiosInstance";
-import { useAuthStore } from "@/store/authStore";
+import { supabase } from "@/config/supabase/supabaseClient";
 
 // Interfaz para datos de solicitud de retiro
 interface WithdrawalRequestData {
@@ -147,6 +147,107 @@ export const processWithdrawalRequest = async (
     };
   } catch (error) {
     console.error("Error al procesar solicitud de retiro:", error);
+    throw error;
+  }
+};
+
+// Interfaz para datos de cuenta bancaria
+interface BankAccountData {
+  usuario_id: string;
+  titular: string;
+  rut: string;
+  banco: string;
+  tipo_cuenta: string;
+  numero_cuenta: string;
+  img_cedula?: string;
+  img_selfie?: string;
+}
+
+// Función para subir imagen a Supabase Storage
+export const uploadVerificationImage = async (
+  file: File,
+  fileName: string
+): Promise<string> => {
+  try {
+    const { data, error } = await supabase.storage
+      .from("verificacion")
+      .upload(fileName, file);
+
+    if (error) {
+      throw new Error(`Error al subir imagen: ${error.message}`);
+    }
+
+    // Obtener URL pública
+    const { data: publicData } = supabase.storage
+      .from("verificacion")
+      .getPublicUrl(data.path);
+
+    return publicData.publicUrl;
+  } catch (error: any) {
+    console.error("Error al subir imagen:", error);
+    throw error;
+  }
+};
+
+// Función para registrar cuenta bancaria
+export const registerBankAccount = async (accountData: BankAccountData) => {
+  try {
+    const response = await axiosInstance.post(
+      "/api/cuenta-bancaria",
+      accountData
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Error al registrar cuenta bancaria:", error);
+
+    if (error.response) {
+      throw new Error(
+        error.response.data.error || "Error al registrar cuenta bancaria"
+      );
+    } else if (error.request) {
+      throw new Error("Error de conexión");
+    } else {
+      throw new Error("Error inesperado");
+    }
+  }
+};
+
+// Función principal para procesar registro de cuenta bancaria con imágenes
+export const processBankAccountRegistration = async (
+  formData: Omit<BankAccountData, "img_cedula" | "img_selfie">,
+  cedulaFile?: File,
+  selfieFile?: File
+) => {
+  try {
+    // Crear FormData para enviar archivos al servidor
+    const formDataToSend = new FormData();
+    
+    // Agregar datos del formulario
+    formDataToSend.append('usuario_id', formData.usuario_id);
+    formDataToSend.append('titular', formData.titular);
+    formDataToSend.append('rut', formData.rut);
+    formDataToSend.append('banco', formData.banco);
+    formDataToSend.append('tipo_cuenta', formData.tipo_cuenta);
+    formDataToSend.append('numero_cuenta', formData.numero_cuenta);
+    
+    // Agregar archivos si existen
+    if (cedulaFile) {
+      formDataToSend.append('cedula_file', cedulaFile);
+    }
+    if (selfieFile) {
+      formDataToSend.append('selfie_file', selfieFile);
+    }
+
+    // Enviar todo al servidor
+    const response = await axiosInstance.post("/api/cuenta-bancaria", formDataToSend, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error al procesar registro de cuenta bancaria:", error);
     throw error;
   }
 };

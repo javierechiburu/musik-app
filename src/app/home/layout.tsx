@@ -4,6 +4,9 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { useState } from "react";
 
+import "@/config/axios/axiosSetup";
+import "@/config/axios/requestInterceptor";
+
 export default function HomeLayout({
   children,
 }: {

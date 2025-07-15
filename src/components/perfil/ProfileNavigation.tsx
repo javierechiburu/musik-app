@@ -12,6 +12,7 @@ export default function ProfileNavigation({
   const tabs = [
     { id: "personal", label: "Información Personal", icon: "👤" },
     { id: "security", label: "Seguridad", icon: "🔒" },
+    { id: "bank", label: "Cuenta Bancaria", icon: "🏦" },
   ];
 
   return (

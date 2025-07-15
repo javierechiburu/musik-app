@@ -1,6 +1,7 @@
 "use client";
 
 import PasswordChangeForm from "@/components/perfil/PasswordChangeForm";
+import BankAccountForm from "@/components/perfil/BankAccountForm";
 
 interface ProfileTabContentProps {
   activeTab: string;
@@ -126,11 +127,25 @@ export default function ProfileTabContent({
     </div>
   );
 
+  const renderBankTab = () => (
+    <div className="px-6">
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold">Cuenta Bancaria</h3>
+        <p className="text-gray-200/80">
+          Registra tus datos bancarios para recibir pagos
+        </p>
+      </div>
+      <BankAccountForm />
+    </div>
+  );
+
   switch (activeTab) {
     case "personal":
       return renderPersonalTab();
     case "security":
       return renderSecurityTab();
+    case "bank":
+      return renderBankTab();
     default:
       return renderPersonalTab();
   }
