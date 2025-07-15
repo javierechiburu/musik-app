@@ -3,6 +3,9 @@
 import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/config/axios/axiosInstance";
+import { useAuthStore } from "@/store/authStore";
+import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 
 interface PasswordChangeFormProps {
   readonly onPasswordChanged: () => void;
@@ -16,6 +19,7 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
   const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
+  const { refreshUserProfile } = useAuthStore();
 
   // Verificar si las contraseñas coinciden
   useEffect(() => {
@@ -42,13 +46,8 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
 
     startTransition(async () => {
       try {
-        // Obtener el token de autenticación actual
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
-        
+        // Usar la instancia de Supabase del store
+        const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session?.access_token) {
@@ -67,8 +66,9 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
 
         if (response.data.success) {
           console.log('✅ Contraseña cambiada exitosamente');
+          // Refresh user profile to update mustChangePassword flag
+          await refreshUserProfile();
           onPasswordChanged();
-          router.push("/home");
         } else {
           setError(response.data.error || 'Error al cambiar la contraseña');
         }
@@ -79,166 +79,185 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
   };
 
   return (
-    <div className="w-full min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="bg-gray-800 rounded-lg shadow-xl p-6 sm:p-8 border border-gray-700 max-w-md w-full">
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-            Cambio de contraseña requerido
-          </h1>
-          <p className="text-gray-400 text-sm sm:text-base">
-            Debes cambiar tu contraseña temporal antes de continuar
-          </p>
+    <div className="w-full min-h-screen relative overflow-hidden bg-black">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0">
+        <Image
+          src="/FADER-1920X1080.jpg"
+          alt="FADER Records Background"
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex">
+        {/* Left Side - Branding */}
+        <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12">
+          <div className="max-w-md text-center">
+            <div className="mb-8">
+              {/* Logo */}
+              <div className="mb-6 flex justify-center">
+                <Image
+                  src="/FADER_LOGO.svg"
+                  alt="FADER Records Logo"
+                  width={200}
+                  height={80}
+                  className="drop-shadow-2xl invert"
+                />
+              </div>
+              <h2 className="text-2xl font-light text-gray-200 drop-shadow-md">
+                RECORDS
+              </h2>
+            </div>
+            <p className="text-lg text-gray-300 leading-relaxed drop-shadow-md">
+              Actualiza tu contraseña para acceder a tu plataforma de gestión musical profesional.
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handlePasswordChange} className="space-y-4 sm:space-y-6">
-          <div className="relative">
-            <label
-              htmlFor="newPassword"
-              className="block text-sm font-medium text-gray-300 mb-2"
-            >
-              Nueva contraseña
-            </label>
-            <div className="relative">
-              <input
-                type="password"
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className={`w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none transition-all duration-200 bg-gray-700 text-white placeholder-gray-400 text-sm sm:text-base ${
-                  newPassword.length === 0 
-                    ? 'border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20' 
-                    : newPassword.length >= 6 
-                      ? 'border-green-500 focus:border-green-400 focus:ring-2 focus:ring-green-500/20'
-                      : 'border-red-500 focus:border-red-400 focus:ring-2 focus:ring-red-500/20'
-                }`}
-                placeholder="Mínimo 6 caracteres"
-                required
-              />
-              {newPassword.length >= 6 && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              )}
+        {/* Right Side - Password Change Form */}
+        <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
+          <div className="w-full max-w-md">
+            {/* Mobile Logo */}
+            <div className="lg:hidden text-center mb-8">
+              <div className="mb-4 flex justify-center">
+                <Image
+                  src="/FADER_LOGO.svg"
+                  alt="FADER Records Logo"
+                  width={150}
+                  height={60}
+                  className="drop-shadow-2xl invert"
+                />
+              </div>
+              <h2 className="text-lg font-light text-gray-200 drop-shadow-md">
+                RECORDS
+              </h2>
             </div>
-            
-            {/* Indicador de fortaleza de contraseña */}
-            {newPassword && (
-              <div className="mt-2">
-                <div className="flex space-x-1">
-                  <div className={`h-1 flex-1 rounded ${newPassword.length >= 2 ? 'bg-red-500' : 'bg-gray-600'}`}></div>
-                  <div className={`h-1 flex-1 rounded ${newPassword.length >= 4 ? 'bg-yellow-500' : 'bg-gray-600'}`}></div>
-                  <div className={`h-1 flex-1 rounded ${newPassword.length >= 6 ? 'bg-green-500' : 'bg-gray-600'}`}></div>
-                  <div className={`h-1 flex-1 rounded ${newPassword.length >= 8 ? 'bg-green-600' : 'bg-gray-600'}`}></div>
+
+            {/* Password Change Card */}
+            <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-gray-700/50">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <div className="mb-4 flex justify-center">
+                  <Image
+                    src="/FADER_LOGO.svg"
+                    alt="FADER Records Logo"
+                    width={120}
+                    height={48}
+                    className="drop-shadow-lg opacity-90 invert"
+                  />
                 </div>
-                <p className="text-xs mt-1 text-gray-400">
-                  {newPassword.length < 6 ? 'Contraseña débil' : newPassword.length < 8 ? 'Contraseña buena' : 'Contraseña fuerte'}
+                <h1 className="text-xl font-semibold text-white mb-2">
+                  Cambio de contraseña requerido
+                </h1>
+                <p className="text-gray-400 text-sm">
+                  Debes cambiar tu contraseña temporal antes de continuar
                 </p>
               </div>
-            )}
-          </div>
 
-          <div className="relative">
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-300 mb-2"
-            >
-              Confirmar contraseña
-            </label>
-            <div className="relative">
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none transition-all duration-200 bg-gray-700 text-white placeholder-gray-400 text-sm sm:text-base ${
-                  confirmPassword.length === 0 
-                    ? 'border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-                    : passwordsMatch
-                      ? 'border-green-500 focus:border-green-400 focus:ring-2 focus:ring-green-500/20'
-                      : 'border-red-500 focus:border-red-400 focus:ring-2 focus:ring-red-500/20'
-                }`}
-                placeholder="Repite la nueva contraseña"
-                required
-              />
-              {passwordsMatch && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              {/* Warning Banner */}
+              <div className="bg-yellow-900/30 border border-yellow-600/50 rounded-xl p-4 mb-6">
+                <div className="flex items-center space-x-3">
+                  <svg className="w-5 h-5 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
+                  <p className="text-yellow-200 text-sm">
+                    Tu contraseña actual es temporal y debe ser actualizada por seguridad.
+                  </p>
                 </div>
-              )}
-            </div>
-            
-            {/* Mensaje de coincidencia */}
-            {confirmPassword && (
-              <p className={`text-xs mt-1 ${passwordsMatch ? 'text-green-400' : 'text-red-400'}`}>
-                {passwordsMatch ? '✓ Las contraseñas coinciden' : '✗ Las contraseñas no coinciden'}
-              </p>
-            )}
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-500 font-medium">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={isPending || !passwordsMatch}
-            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm sm:text-base font-medium text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed ${
-              passwordsMatch && !isPending
-                ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-                : 'bg-gray-600 opacity-50'
-            }`}
-          >
-            {isPending ? (
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Cambiando contraseña...</span>
               </div>
-            ) : passwordsMatch ? (
-              <div className="flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Cambiar contraseña</span>
-              </div>
-            ) : (
-              "Cambiar contraseña"
-            )}
-          </button>
-        </form>
 
-        <div className="mt-4 sm:mt-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-lg p-4">
-          <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0">
-              <svg className="w-5 h-5 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-blue-200 text-sm font-medium">
-                Recomendaciones para tu nueva contraseña:
-              </p>
-              <ul className="text-blue-200 text-xs mt-2 space-y-1">
-                <li className="flex items-center space-x-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${newPassword.length >= 6 ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                  <span>Al menos 6 caracteres</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(newPassword) && /[a-z]/.test(newPassword) ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                  <span>Combina mayúsculas y minúsculas</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${/\d/.test(newPassword) ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                  <span>Incluye números</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${!/(.)\1{2,}/.test(newPassword) && newPassword.length > 0 ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                  <span>Evita repetir caracteres</span>
-                </li>
-              </ul>
+              {/* Password Change Form */}
+              <form onSubmit={handlePasswordChange} className="space-y-6">
+                {/* New Password */}
+                <div>
+                  <label
+                    htmlFor="newPassword"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Nueva Contraseña
+                  </label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-800/80 text-white placeholder-gray-400 transition-all"
+                    placeholder="••••••••"
+                    required
+                    disabled={isPending}
+                    minLength={6}
+                  />
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Confirmar Nueva Contraseña
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-800/80 text-white placeholder-gray-400 transition-all"
+                    placeholder="••••••••"
+                    required
+                    disabled={isPending}
+                    minLength={6}
+                  />
+                </div>
+
+                {/* Password Match Indicator */}
+                {newPassword && confirmPassword && (
+                  <div className={`text-sm p-3 rounded-xl border ${passwordsMatch ? 'text-green-400 bg-green-900/30 border-green-700/50' : 'text-red-400 bg-red-900/30 border-red-700/50'}`}>
+                    {passwordsMatch ? '✓ Las contraseñas coinciden' : '✗ Las contraseñas no coinciden'}
+                  </div>
+                )}
+
+                {/* Error Message */}
+                {error && (
+                  <div className="text-red-400 text-sm font-medium bg-red-900/30 p-3 rounded-xl border border-red-800/50">
+                    {error}
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={isPending || !passwordsMatch || !newPassword}
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isPending ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Cambiando contraseña...
+                    </div>
+                  ) : (
+                    "Cambiar Contraseña"
+                  )}
+                </button>
+              </form>
+
+              {/* Footer */}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-400">
+                  ¿Necesitas ayuda?{" "}
+                  <a
+                    href="#"
+                    className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                  >
+                    Contacta soporte
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </div>

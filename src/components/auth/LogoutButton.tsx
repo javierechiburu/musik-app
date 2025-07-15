@@ -1,29 +1,32 @@
 "use client";
 
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
 export default function LogoutButton() {
-  const { signOut, isLoading } = useAuth();
+  const { signOut } = useAuth();
   const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
       await signOut();
       router.push("/login");
-      router.refresh();
     } catch (error) {
       console.error("Error during logout:", error);
+      setIsLoggingOut(false);
     }
   };
 
   return (
     <button
       onClick={handleLogout}
-      disabled={isLoading}
+      disabled={isLoggingOut}
       className="bg-red-500/50 hover:bg-red-700/60 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
     >
-      {isLoading ? "Cerrando sesión..." : "Cerrar Sesión"}
+      {isLoggingOut ? "Cerrando sesión..." : "Cerrar Sesión"}
     </button>
   );
 }

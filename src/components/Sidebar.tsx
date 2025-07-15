@@ -190,8 +190,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const role = localStorage.getItem('logged_in_user_role');
-    setUserRole(role);
+    try {
+      const authData = localStorage.getItem('auth-storage');
+      if (authData) {
+        const parsedData = JSON.parse(authData);
+        const role = parsedData?.state?.userProfile?.role;
+        setUserRole(role);
+      }
+    } catch (error) {
+      console.error('Error parsing auth-storage:', error);
+      setUserRole(null);
+    }
   }, []);
 
   return (

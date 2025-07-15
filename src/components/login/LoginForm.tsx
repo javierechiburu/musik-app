@@ -123,7 +123,7 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 <p className="text-gray-400">Accede a tu panel de control</p>
               </div>
 
-              {/* Form */}
+              {/* Login Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Email */}
                 <div>

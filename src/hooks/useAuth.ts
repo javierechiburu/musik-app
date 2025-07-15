@@ -13,6 +13,7 @@ export interface UseAuthReturn {
   isLoading: boolean
   isAuthenticated: boolean
   isAdmin: boolean
+  mustChangePassword: boolean
   
   // Actions
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
@@ -27,6 +28,7 @@ export function useAuth(): UseAuthReturn {
     isLoading,
     isAuthenticated,
     isAdmin,
+    mustChangePassword,
     signIn,
     signOut,
     refreshUserProfile,
@@ -60,6 +62,7 @@ export function useAuth(): UseAuthReturn {
     isLoading: hydrated ? isLoading : true,
     isAuthenticated: hydrated ? isAuthenticated : false,
     isAdmin: hydrated ? isAdmin : false,
+    mustChangePassword: hydrated ? mustChangePassword : false,
     signIn,
     signOut,
     refreshProfile: refreshUserProfile,

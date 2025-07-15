@@ -16,6 +16,7 @@ interface AuthState {
   
   // Computed properties
   isAdmin: boolean
+  mustChangePassword: boolean
   
   // Actions
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
@@ -37,25 +38,30 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoadingProfile: false,
       isAdmin: false,
+      mustChangePassword: false,
 
       // Actions
       setUser: (user: User | null) => {
-        set({ 
-          user, 
-          isAuthenticated: !!user,
-          isLoading: false 
-        })
-        
-        // Clear profile when user is cleared
+        // Only clear state when user is null, don't auto-authenticate
         if (!user) {
-          set({ userProfile: null, isAdmin: false })
+          set({ 
+            user: null,
+            userProfile: null, 
+            isAuthenticated: false,
+            isAdmin: false, 
+            mustChangePassword: false,
+            isLoading: false
+          })
+        } else {
+          set({ user })
         }
       },
 
       setUserProfile: (profile: UserProfile | null) => {
         set({ 
           userProfile: profile,
-          isAdmin: profile?.role === 'admin'
+          isAdmin: profile?.role === 'admin',
+          mustChangePassword: profile?.must_change_password === true
         })
       },
 
@@ -79,9 +85,20 @@ export const useAuthStore = create<AuthState>()(
           }
 
           if (data.user) {
-            // Set user and load profile directly
-            get().setUser(data.user)
+            // Set user but don't mark as authenticated yet
+            set({ 
+              user: data.user,
+              isLoading: true  // Keep loading until profile is loaded
+            })
+            
+            // Load profile and wait for it to complete
             await get().refreshUserProfile()
+            
+            // Now mark as authenticated after profile is loaded
+            set({ 
+              isAuthenticated: true,
+              isLoading: false 
+            })
           }
 
           return { error: null }
@@ -93,22 +110,22 @@ export const useAuthStore = create<AuthState>()(
 
       signOut: async () => {
         const supabase = createClient()
-        set({ isLoading: true })
 
         try {
           await supabase.auth.signOut()
-          // User will be cleared by the auth state change listener
         } catch (error) {
           console.error('Error signing out:', error)
-          // Clear state anyway
-          set({
-            user: null,
-            userProfile: null,
-            isAuthenticated: false,
-            isAdmin: false,
-            isLoading: false,
-          })
         }
+        
+        // Always clear state immediately, don't rely on auth listener
+        set({
+          user: null,
+          userProfile: null,
+          isAuthenticated: false,
+          isAdmin: false,
+          mustChangePassword: false,
+          isLoading: false,
+        })
       },
 
       refreshUserProfile: async () => {
@@ -149,8 +166,19 @@ export const useAuthStore = create<AuthState>()(
           const { data: { session } } = await supabase.auth.getSession()
           
           if (session?.user) {
-            get().setUser(session.user)
+            // Set user but keep loading until profile is loaded
+            set({ 
+              user: session.user,
+              isLoading: true 
+            })
+            
+            // Load profile and then mark as authenticated
             await get().refreshUserProfile()
+            
+            set({ 
+              isAuthenticated: true,
+              isLoading: false 
+            })
           } else {
             get().setUser(null)
           }
@@ -160,7 +188,6 @@ export const useAuthStore = create<AuthState>()(
             if (event === 'SIGNED_OUT') {
               console.log('User signed out, clearing state')
               get().setUser(null)
-              get().setUserProfile(null)
             }
             // Don't handle SIGNED_IN here to avoid loops
           })
@@ -178,6 +205,7 @@ export const useAuthStore = create<AuthState>()(
         userProfile: state.userProfile,
         isAuthenticated: state.isAuthenticated,
         isAdmin: state.isAdmin,
+        mustChangePassword: state.mustChangePassword,
       }),
     }
   )
