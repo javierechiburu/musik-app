@@ -13,6 +13,7 @@ import WalletProfile from "@/components/billetera/WalletProfile";
 import ResumenGanancias from "@/components/billetera/ResumenGanancias";
 import SolicitudRetiroBanner from "@/components/billetera/SolicitudRetiroBanner";
 import HistorialRetiros from "@/components/billetera/HistorialRetiros";
+import { useAuthStore } from "@/store/authStore";
 
 interface WithdrawalRequest {
   id: string;
@@ -49,6 +50,8 @@ export default function MiBilleteraPage() {
     staleTime: 5 * 60 * 1000, // 5 minutos
     retry: 2,
   });
+
+  const id_usuario = useAuthStore().user?.id;
 
   // Usar datos de Sonosuite o mock data
   const { data: sonosuiteData, isLoading: isLoadingEarnings } = useQuery({
@@ -94,12 +97,12 @@ export default function MiBilleteraPage() {
   ) => {
     try {
       // Usar la nueva función de la API
-      const result = await processWithdrawalRequest(requestData);
+      const result = await processWithdrawalRequest(requestData, id_usuario);
 
       // Refrescar datos de la base de datos
       await refetchWithdrawals();
 
-      if (result.database.success) {
+      if (result && result.database.success) {
         alert("Solicitud guardada exitosamente en la base de datos");
       } else {
         alert(

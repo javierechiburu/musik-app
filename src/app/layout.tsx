@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { QueryClientProviderWrapper } from "@/contexts/QueryClientContext";
 
 // Inicializar axios interceptors
@@ -33,9 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <QueryClientProviderWrapper>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          {children}
         </QueryClientProviderWrapper>
       </body>
     </html>

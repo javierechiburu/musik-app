@@ -5,10 +5,8 @@ export default function LoginLayout({
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
-      <div className="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-sm sm:max-w-md">
-          {children}
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        {children}
       </div>
     </div>
   );

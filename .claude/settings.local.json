@@ -3,7 +3,9 @@
     "allow": [
       "Bash(mkdir:*)",
       "Bash(pnpm run lint:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(pnpm add:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

@@ -1,4 +1,5 @@
 import { axiosInstance } from "@/config/axios/axiosInstance";
+import { useAuthStore } from "@/store/authStore";
 
 // Interfaz para datos de solicitud de retiro
 interface WithdrawalRequestData {
@@ -123,6 +124,7 @@ export const processWithdrawalRequest = async (
   id_usuario: string = "default_user_id" // En producción, esto vendría del contexto de autenticación
 ) => {
   try {
+    if (!id_usuario) return;
     // 1. Formatear datos para la base de datos
     const dbData = formatRequestForDatabase(formData, id_usuario);
 

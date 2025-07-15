@@ -42,20 +42,30 @@ export async function POST(request: NextRequest) {
       </ul>
       
       <h3>Segmentación:</h3>
-      <p><strong>Países:</strong> ${body.segmentation.countries.join(", ") || "No especificado"}</p>
-      <p><strong>Géneros:</strong> ${body.segmentation.genders.join(", ") || "No especificado"}</p>
-      <p><strong>Edades:</strong> ${body.segmentation.ages.join(", ") || "No especificado"}</p>
-      <p><strong>Géneros Musicales:</strong> ${body.segmentation.genres.join(", ") || "No especificado"}</p>
+      <p><strong>Países:</strong> ${
+        body.segmentation.countries.join(", ") || "No especificado"
+      }</p>
+      <p><strong>Géneros:</strong> ${
+        body.segmentation.genders.join(", ") || "No especificado"
+      }</p>
+      <p><strong>Edades:</strong> ${
+        body.segmentation.ages.join(", ") || "No especificado"
+      }</p>
+      <p><strong>Géneros Musicales:</strong> ${
+        body.segmentation.genres.join(", ") || "No especificado"
+      }</p>
       
       <h3>Información Adicional:</h3>
       <p><strong>Presupuesto:</strong> ${body.budget || "No especificado"}</p>
-      <p><strong>Notas:</strong> ${body.additional_notes || "Sin notas adicionales"}</p>
+      <p><strong>Notas:</strong> ${
+        body.additional_notes || "Sin notas adicionales"
+      }</p>
     `;
 
     // Enviar email
     const { data, error } = await resend.emails.send({
-      from: "marketing@yourdomain.com",
-      to: ["marketing@yourdomain.com"],
+      from: "onboarding@resend.dev",
+      to: ["javierechiburu.g@gmail.com"],
       subject: "Nueva Solicitud de Marketing",
       html: emailContent,
     });
