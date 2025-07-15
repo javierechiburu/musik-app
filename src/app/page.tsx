@@ -7,7 +7,8 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/login');
+    // NO redirigir automáticamente - dejar que el middleware maneje la lógica
+    // El middleware redirigirá apropiadamente basado en autenticación y must_change_password
   }, [router]);
 
   return (
@@ -15,7 +16,7 @@ export default function Home() {
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
         <p className="mt-4 text-gray-400">
-          Redirigiendo...
+          Cargando...
         </p>
       </div>
     </div>

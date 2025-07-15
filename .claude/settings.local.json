@@ -5,7 +5,11 @@
       "Bash(pnpm run lint:*)",
       "Bash(rm:*)",
       "Bash(pnpm add:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npm run lint)",
+      "Bash(npm install:*)",
+      "Bash(pnpm dev:*)"
     ],
     "deny": []
   }
