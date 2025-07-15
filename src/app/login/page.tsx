@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 // Import login components
 import LoginForm from "@/components/login/LoginForm";
 import PasswordChangeForm from "@/components/login/PasswordChangeForm";
-import LoadingScreen from "@/components/login/LoadingScreen";
+import LoginLoadingCard from "@/components/login/LoginLoadingCard";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   // Show loading while checking authentication
   if (isLoading) {
-    return <LoadingScreen message="Verificando autenticación..." />;
+    return <LoginLoadingCard message="Verificando autenticación..." />;
   }
 
   // Show password change form if authenticated and needs password change

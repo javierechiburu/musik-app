@@ -237,7 +237,15 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
                 >
                   {isPending ? (
                     <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      <div className="w-5 h-5 rounded-full border border-white/30 overflow-hidden mr-2 spin-slow">
+                        <Image
+                          src="/FADER-FOTOPERFIL.jpg"
+                          alt="Loading"
+                          width={20}
+                          height={20}
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      </div>
                       Cambiando contraseña...
                     </div>
                   ) : (
