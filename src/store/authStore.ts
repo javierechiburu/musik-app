@@ -1,31 +1,34 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { createClient } from '@/lib/supabase/client'
-import type { User, AuthError } from '@supabase/supabase-js'
-import type { Database } from '@/types/database.types'
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { createClient } from "@/lib/supabase/client";
+import type { User, AuthError } from "@supabase/supabase-js";
+import type { Database } from "@/types/database.types";
 
-export type UserProfile = Database['public']['Tables']['usuario']['Row']
+export type UserProfile = Database["public"]["Tables"]["usuario"]["Row"];
 
 interface AuthState {
   // Core state
-  user: User | null
-  userProfile: UserProfile | null
-  isLoading: boolean
-  isAuthenticated: boolean
-  isLoadingProfile: boolean
-  
+  user: User | null;
+  userProfile: UserProfile | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  isLoadingProfile: boolean;
+
   // Computed properties
-  isAdmin: boolean
-  mustChangePassword: boolean
-  
+  isAdmin: boolean;
+  mustChangePassword: boolean;
+
   // Actions
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
-  signOut: () => Promise<void>
-  setUser: (user: User | null) => void
-  setUserProfile: (profile: UserProfile | null) => void
-  setLoading: (loading: boolean) => void
-  initialize: () => Promise<void>
-  refreshUserProfile: () => Promise<void>
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
+  signOut: () => Promise<void>;
+  setUser: (user: User | null) => void;
+  setUserProfile: (profile: UserProfile | null) => void;
+  setLoading: (loading: boolean) => void;
+  initialize: () => Promise<void>;
+  refreshUserProfile: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -44,79 +47,79 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user: User | null) => {
         // Only clear state when user is null, don't auto-authenticate
         if (!user) {
-          set({ 
+          set({
             user: null,
-            userProfile: null, 
+            userProfile: null,
             isAuthenticated: false,
-            isAdmin: false, 
+            isAdmin: false,
             mustChangePassword: false,
-            isLoading: false
-          })
+            isLoading: false,
+          });
         } else {
-          set({ user })
+          set({ user });
         }
       },
 
       setUserProfile: (profile: UserProfile | null) => {
-        set({ 
+        set({
           userProfile: profile,
-          isAdmin: profile?.role === 'admin',
-          mustChangePassword: profile?.must_change_password === true
-        })
+          isAdmin: profile?.role === "admin",
+          mustChangePassword: profile?.must_change_password === true,
+        });
       },
 
       setLoading: (loading: boolean) => {
-        set({ isLoading: loading })
+        set({ isLoading: loading });
       },
 
       signIn: async (email: string, password: string) => {
-        const supabase = createClient()
-        set({ isLoading: true })
+        const supabase = createClient();
+        set({ isLoading: true });
 
         try {
           const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
-          })
+          });
 
           if (error) {
-            set({ isLoading: false })
-            return { error }
+            set({ isLoading: false });
+            return { error };
           }
 
           if (data.user) {
             // Set user but don't mark as authenticated yet
-            set({ 
+            set({
               user: data.user,
-              isLoading: true  // Keep loading until profile is loaded
-            })
-            
+              isLoading: true, // Keep loading until profile is loaded
+            });
+
             // Load profile and wait for it to complete
-            await get().refreshUserProfile()
-            
+            await get().refreshUserProfile();
+
             // Now mark as authenticated after profile is loaded
-            set({ 
+            set({
               isAuthenticated: true,
-              isLoading: false 
-            })
+              isLoading: false,
+            });
           }
 
-          return { error: null }
+          return { error: null };
         } catch (error) {
-          set({ isLoading: false })
-          return { error: error as AuthError }
+          set({ isLoading: false });
+          return { error: error as AuthError };
         }
       },
 
       signOut: async () => {
-        const supabase = createClient()
+        const supabase = createClient();
 
         try {
-          await supabase.auth.signOut()
+          await supabase.auth.signOut();
         } catch (error) {
-          console.error('Error signing out:', error)
+          console.error("Error signing out:", error);
         }
-        
+
         // Always clear state immediately, don't rely on auth listener
         set({
           user: null,
@@ -125,81 +128,82 @@ export const useAuthStore = create<AuthState>()(
           isAdmin: false,
           mustChangePassword: false,
           isLoading: false,
-        })
+        });
       },
 
       refreshUserProfile: async () => {
-        const { user, isLoadingProfile } = get()
-        if (!user || isLoadingProfile) return
+        const { user, isLoadingProfile } = get();
+        if (!user || isLoadingProfile) return;
 
-        set({ isLoadingProfile: true })
-        const supabase = createClient()
-        
+        set({ isLoadingProfile: true });
+        const supabase = createClient();
+
         try {
-          console.log('Fetching user profile for:', user.id)
+          console.log("Fetching user profile for:", user.id);
           const { data: profile, error } = await supabase
-            .from('usuario')
-            .select('*')
-            .eq('auth_id', user.id)
-            .single()
+            .from("usuario")
+            .select("*")
+            .eq("auth_id", user.id)
+            .single();
 
           if (error) {
-            console.error('Error fetching user profile:', error)
-            return
+            console.error("Error fetching user profile:", error);
+            return;
           }
 
-          console.log('Profile loaded:', profile)
-          get().setUserProfile(profile)
+          console.log("Profile loaded:", profile);
+          get().setUserProfile(profile);
         } catch (error) {
-          console.error('Error refreshing user profile:', error)
+          console.error("Error refreshing user profile:", error);
         } finally {
-          set({ isLoadingProfile: false })
+          set({ isLoadingProfile: false });
         }
       },
 
       initialize: async () => {
-        const supabase = createClient()
-        set({ isLoading: true })
+        const supabase = createClient();
+        set({ isLoading: true });
 
         try {
           // Get initial session
-          const { data: { session } } = await supabase.auth.getSession()
-          
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
           if (session?.user) {
             // Set user but keep loading until profile is loaded
-            set({ 
+            set({
               user: session.user,
-              isLoading: true 
-            })
-            
+              isLoading: true,
+            });
+
             // Load profile and then mark as authenticated
-            await get().refreshUserProfile()
-            
-            set({ 
+            await get().refreshUserProfile();
+
+            set({
               isAuthenticated: true,
-              isLoading: false 
-            })
+              isLoading: false,
+            });
           } else {
-            get().setUser(null)
+            get().setUser(null);
           }
 
           // Simple auth state listener - only for logout detection
-          supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_OUT') {
-              console.log('User signed out, clearing state')
-              get().setUser(null)
+          supabase.auth.onAuthStateChange(async (event) => {
+            if (event === "SIGNED_OUT") {
+              console.log("User signed out, clearing state");
+              get().setUser(null);
             }
             // Don't handle SIGNED_IN here to avoid loops
-          })
-
+          });
         } catch (error) {
-          console.error('Error initializing auth:', error)
-          set({ isLoading: false })
+          console.error("Error initializing auth:", error);
+          set({ isLoading: false });
         }
       },
     }),
     {
-      name: 'auth-storage',
+      name: "auth-storage",
       partialize: (state) => ({
         // Only persist non-sensitive data
         userProfile: state.userProfile,
@@ -209,6 +213,6 @@ export const useAuthStore = create<AuthState>()(
       }),
     }
   )
-)
+);
 
 // Initialize store only when first used via hook (to avoid SSR hydration issues)
