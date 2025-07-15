@@ -18,98 +18,32 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordsMatch, setPasswordsMatch] = useState(false);
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   
   // Refs para control de ejecución única
   const checkExecutedRef = useRef(false);
   const lastUserIdRef = useRef<string | null>(null);
   
   const router = useRouter();
-  const { login, user, loading, mustChangePassword: contextMustChangePassword, refreshUserData } = useAuth();
+  const { login, user, loading, userRole, mustChangePassword: contextMustChangePassword, refreshUserData } = useAuth();
 
   // Rate limiting simple
   const MAX_ATTEMPTS = 5;
 
-  // Función para verificar datos del usuario una sola vez
-  const checkUserAndDecide = useCallback(async (authenticatedUser: any) => {
-    const userId = authenticatedUser?.id;
-    
-    if (!userId) {
-      console.error('❌ No hay usuario autenticado');
-      return;
-    }
-
-    // Prevenir ejecuciones duplicadas
-    if (checkExecutedRef.current && lastUserIdRef.current === userId) {
-      console.log('✅ Verificación ya ejecutada para este usuario');
-      return;
-    }
-
-    console.log('🔍 Verificando datos del usuario:', userId);
-    checkExecutedRef.current = true;
-    lastUserIdRef.current = userId;
-
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/usuario?select=role,must_change_password&auth_id=eq.${userId}`,
-        {
-          method: 'GET',
-          headers: {
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-
-      const userData = await response.json();
-      console.log('📊 Datos recibidos:', userData);
-
-      if (userData && userData.length > 0) {
-        const userInfo = userData[0];
-        
-        console.log('🎯 Procesando usuario:', {
-          role: userInfo.role,
-          mustChangePassword: userInfo.must_change_password,
-          userId
-        });
-
-        // Limpiar cualquier error previo ya que SÍ encontramos datos
-        setErrorMessage("");
-
-        if (userInfo.must_change_password === true) {
-          console.log('🔒 Mostrando formulario de cambio de contraseña');
-          setShowPasswordChange(true);
-        } else {
-          console.log('🏠 Redirigiendo a home');
-          router.push("/home");
-        }
-      } else {
-        console.error('❌ No se encontraron datos del usuario');
-        setErrorMessage("Error: No se encontraron datos del usuario");
-      }
-    } catch (error) {
-      console.error('❌ Error verificando datos:', error);
-      setErrorMessage("Error verificando datos del usuario");
-      // Reset para permitir retry
-      checkExecutedRef.current = false;
-      lastUserIdRef.current = null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [router]);
+  // FUNCIÓN ELIMINADA: checkUserAndDecide
+  // Ahora usamos directamente contextMustChangePassword del AuthContext
+  // para evitar llamadas duplicadas al servicio
 
   // Effect principal - manejo simplificado del estado
   useEffect(() => {
-    console.log('🔄 Estado actual:', {
+    console.log('🔄 Estado actual en useEffect:', {
       hasUser: !!user,
+      userId: user?.id,
       loading,
+      userRole,
       contextMustChangePassword,
       showPasswordChange,
+      isRedirecting,
       checkExecuted: checkExecutedRef.current,
       lastUserId: lastUserIdRef.current
     });
@@ -123,24 +57,50 @@ export default function LoginPage() {
     if (!user) {
       setShowPasswordChange(false);
       setErrorMessage("");
+      setIsRedirecting(false);
       checkExecutedRef.current = false;
       lastUserIdRef.current = null;
       return;
     }
 
-    // Si hay usuario y no se ha verificado
-    if (user && !checkExecutedRef.current) {
-      console.log('🚀 Usuario detectado, iniciando verificación...');
-      checkUserAndDecide(user);
+    // ESPERAR a que el AuthContext cargue COMPLETAMENTE los datos del usuario
+    // userRole !== null indica que getUserRole() terminó de ejecutarse
+    if (user && userRole !== null && !checkExecutedRef.current) {
+      console.log('🚀 Usuario detectado y datos cargados, evaluando estado...');
+      console.log('📋 userRole:', userRole);
+      console.log('📋 contextMustChangePassword:', contextMustChangePassword, 'tipo:', typeof contextMustChangePassword);
+      console.log('📋 Evaluación estricta:');
+      console.log('  contextMustChangePassword === true:', contextMustChangePassword === true);
+      console.log('  contextMustChangePassword === false:', contextMustChangePassword === false);
+      
+      checkExecutedRef.current = true;
+      lastUserIdRef.current = user.id;
+      
+      if (contextMustChangePassword === true) {
+        console.log('🔒 DECISIÓN FINAL: Usuario DEBE cambiar contraseña - mostrando formulario');
+        setIsLoading(false); // Resetear loading para habilitar el formulario
+        setShowPasswordChange(true);
+      } else {
+        console.log('🏠 DECISIÓN FINAL: Usuario NO necesita cambiar contraseña - redirigiendo a home');
+        setIsRedirecting(true);
+        router.push("/home");
+      }
+    } else if (user && userRole === null && !checkExecutedRef.current) {
+      console.log('⏳ Usuario detectado pero AuthContext aún cargando datos... userRole:', userRole);
     }
     
     // Si hay usuario y ya se verificó, usar contextMustChangePassword como fallback
     if (user && checkExecutedRef.current && contextMustChangePassword && !showPasswordChange) {
-      console.log('🔄 Usando contextMustChangePassword como fallback');
+      console.log('🔄 Usando contextMustChangePassword como fallback', {
+        contextMustChangePassword,
+        showPasswordChange,
+        userId: user.id
+      });
       setErrorMessage(""); // Limpiar errores ya que tenemos datos válidos
+      setIsLoading(false); // Resetear loading para habilitar el formulario
       setShowPasswordChange(true);
     }
-  }, [user, loading, contextMustChangePassword, checkUserAndDecide]);
+  }, [user, loading, userRole, contextMustChangePassword, router]);
 
   // Verificar si las contraseñas coinciden
   useEffect(() => {
@@ -249,7 +209,7 @@ export default function LoginPage() {
       // Reset attempt count on success
       setAttemptCount(0);
       console.log('✅ Login exitoso - esperando verificación de datos');
-      // No setear isLoading(false) aquí - lo hará checkUserAndDecide
+      // isLoading se reseteará cuando se determine si mostrar formulario o redirigir
     } catch (error) {
       console.error("Error durante el login:", error);
       setAttemptCount((prev) => prev + 1);
@@ -260,6 +220,19 @@ export default function LoginPage() {
       lastUserIdRef.current = null;
     }
   };
+
+  // Si está redirigiendo, mostrar loading
+  if (isRedirecting) {
+    return (
+      <div className="bg-gray-800 rounded-lg shadow-xl p-6 sm:p-8 border border-gray-700">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-white mb-2">Acceso autorizado</h2>
+          <p className="text-gray-400">Redirigiendo a la aplicación...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Renderizado condicional simplificado
   if (showPasswordChange) {

@@ -67,15 +67,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return null;
       }
 
-      // Si hay múltiples registros, usar el más reciente
+      // Si hay múltiples registros, usar el más reciente para role
+      // pero para must_change_password, si al menos uno es true, usar true
       let userData = data[0];
       if (data.length > 1) {
-        console.warn(`⚠️ Se encontraron ${data.length} registros para el mismo usuario. Usando el primero.`);
-        // Opcional: eliminar duplicados aquí
+        console.warn(`⚠️ Se encontraron ${data.length} registros para el mismo usuario. Evaluando must_change_password...`);
       }
 
       const role = userData?.role || "user";
-      const mustChange = userData?.must_change_password || false;
+      
+      // Revisar si AL MENOS UN registro tiene must_change_password: true
+      console.log('🔍 Datos recibidos:', data);
+      
+      const mustChange = data.some(record => record.must_change_password === true);
+      
+      console.log('🔍 ¿Existe al menos un must_change_password: true?:', mustChange);
+      console.log('🔍 Valores encontrados:', data.map(r => r.must_change_password));
       
       const validRoles = ["user", "admin"];
       if (!validRoles.includes(role)) {
@@ -109,12 +116,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) return { error };
+
+      // Si el login es exitoso y tenemos el usuario, obtener su role
+      if (data.user) {
+        console.log('🔑 Login exitoso, obteniendo role del usuario...');
+        await getUserRole(data.user.id);
+      }
 
       return { error: null };
     } catch (error) {
@@ -124,14 +137,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
-      localStorage.removeItem("logged_in_user_role");
+      console.log('🔄 AuthContext: Iniciando logout...');
+      
+      // Limpiar estado local primero
       setUser(null);
       setSession(null);
       setUserRole(null);
       setMustChangePassword(false);
+      
+      // Limpiar localStorage
+      try {
+        localStorage.removeItem("logged_in_user_role");
+        console.log('✅ AuthContext: localStorage limpiado');
+      } catch (error) {
+        console.error('Error limpiando localStorage:', error);
+      }
+      
+      // Cerrar sesión en Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error en Supabase signOut:', error);
+      } else {
+        console.log('✅ AuthContext: Sesión de Supabase cerrada');
+      }
+      
     } catch (error) {
       console.error("Error during logout:", error);
+      // Aún así, limpiar el estado local
+      setUser(null);
+      setSession(null);
+      setUserRole(null);
+      setMustChangePassword(false);
+      localStorage.removeItem("logged_in_user_role");
     }
   };
 

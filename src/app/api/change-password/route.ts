@@ -10,11 +10,18 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const { newPassword } = await req.json();
+    const { newPassword, currentPassword } = await req.json();
 
     if (!newPassword || newPassword.length < 6) {
       return NextResponse.json(
         { error: 'La nueva contraseña debe tener al menos 6 caracteres' },
+        { status: 400 }
+      );
+    }
+
+    if (currentPassword && currentPassword === newPassword) {
+      return NextResponse.json(
+        { error: 'La nueva contraseña debe ser diferente a la actual' },
         { status: 400 }
       );
     }
@@ -48,6 +55,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Si se proporciona currentPassword, verificarla (cambio desde perfil)
+    if (currentPassword) {
+      try {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: user.email!,
+          password: currentPassword,
+        });
+
+        if (signInError) {
+          return NextResponse.json(
+            { error: 'La contraseña actual es incorrecta' },
+            { status: 400 }
+          );
+        }
+      } catch (error) {
+        console.error('Error verificando contraseña actual:', error);
+        return NextResponse.json(
+          { error: 'Error verificando la contraseña actual' },
+          { status: 500 }
+        );
+      }
+    }
+
     // Actualizar la contraseña usando el service role client
     const { error: updateError } = await supabase.auth.admin.updateUserById(
       user.id,
@@ -62,14 +92,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Actualizar el flag must_change_password en la tabla usuario
-    const { error: flagError } = await supabase
-      .from('usuario')
-      .update({ must_change_password: false })
-      .eq('auth_id', user.id);
+    // Actualizar el flag must_change_password solo si es cambio desde login (sin currentPassword)
+    if (!currentPassword) {
+      const { error: flagError } = await supabase
+        .from('usuario')
+        .update({ must_change_password: false })
+        .eq('auth_id', user.id);
 
-    if (flagError) {
-      console.error('Error actualizando flag de contraseña:', flagError);
+      if (flagError) {
+        console.error('Error actualizando flag de contraseña:', flagError);
+      }
     }
 
     return NextResponse.json({

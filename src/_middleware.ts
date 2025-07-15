@@ -59,10 +59,7 @@ export async function middleware(request: NextRequest) {
     // Permitir acceso a /login incluso si está autenticado 
     // El componente de login manejará la redirección basada en must_change_password
     if (isPublicPath) {
-      // COMENTADO: No redirigir automáticamente desde login
-      // if (pathname === "/login" && isAuthenticated) {
-      //   return NextResponse.redirect(new URL("/home", request.url));
-      // }
+      console.log("Middleware - permitiendo acceso a ruta pública:", pathname);
       return response;
     }
 
@@ -75,18 +72,22 @@ export async function middleware(request: NextRequest) {
           const { data: userData, error: userError } = await supabase
             .from("usuario")
             .select("must_change_password")
-            .eq("auth_id", session?.user.id)
-            .single();
+            .eq("auth_id", session?.user.id);
 
           console.log("Middleware - verificando must_change_password:", {
             userId: session?.user.id,
-            mustChangePassword: userData?.must_change_password,
+            userData,
             userError
           });
 
-          // Si el usuario debe cambiar contraseña, redirigir a login
-          if (userData?.must_change_password) {
-            return NextResponse.redirect(new URL("/login", request.url));
+          // Si hay datos y algún registro tiene must_change_password true, redirigir a login
+          if (userData && userData.length > 0) {
+            const mustChangePassword = userData.some(record => record.must_change_password === true);
+            console.log("Middleware - evaluación must_change_password:", mustChangePassword);
+            
+            if (mustChangePassword) {
+              return NextResponse.redirect(new URL("/login", request.url));
+            }
           }
         } catch (error) {
           console.error("Error checking must_change_password in middleware:", error);
