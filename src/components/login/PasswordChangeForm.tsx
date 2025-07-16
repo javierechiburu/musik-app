@@ -1,25 +1,21 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { axiosInstance } from "@/config/axios/axiosInstance";
 import { useAuthStore } from "@/store/authStore";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 
-interface PasswordChangeFormProps {
-  readonly onPasswordChanged: () => void;
-}
-
-export default function PasswordChangeForm({ onPasswordChanged }: PasswordChangeFormProps) {
+export default function PasswordChangeForm() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordsMatch, setPasswordsMatch] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const router = useRouter();
-  const { refreshUserProfile } = useAuthStore();
+  const { refreshUserProfile, setUserProfile, userProfile } = useAuthStore();
 
   // Verificar si las contraseñas coinciden
   useEffect(() => {
@@ -32,6 +28,7 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsRedirecting(true);
     setError("");
 
     if (newPassword !== confirmPassword) {
@@ -49,13 +46,13 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
         // Usar la instancia de Supabase del store
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
-        
+
         if (!session?.access_token) {
           setError("Error: No se pudo obtener el token de autenticación");
           return;
         }
 
-        const response = await axiosInstance.post('/api/change-password', 
+        const response = await axiosInstance.post('/api/change-password',
           { newPassword },
           {
             headers: {
@@ -65,10 +62,17 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
         );
 
         if (response.data.success) {
-          console.log('✅ Contraseña cambiada exitosamente');
-          // Refresh user profile to update mustChangePassword flag
-          await refreshUserProfile();
-          onPasswordChanged();
+          console.log("✅ Contraseña cambiada exitosamente");
+
+          // Update profile locally first for immediate UI response
+          if (userProfile) {
+            setUserProfile({
+              ...userProfile,
+              must_change_password: false,
+            });
+          }
+          // Set redirecting state and redirect
+          /* redirect("/home"); */
         } else {
           setError(response.data.error || 'Error al cambiar la contraseña');
         }
@@ -232,10 +236,23 @@ export default function PasswordChangeForm({ onPasswordChanged }: PasswordChange
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isPending || !passwordsMatch || !newPassword}
+                  disabled={isPending || isRedirecting || !passwordsMatch || !newPassword}
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isPending ? (
+                  {isRedirecting ? (
+                    <div className="flex items-center">
+                      <div className="w-5 h-5 rounded-full border border-white/30 overflow-hidden mr-2 spin-slow">
+                        <Image
+                          src="/FADER-FOTOPERFIL.jpg"
+                          alt="Loading"
+                          width={20}
+                          height={20}
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      </div>
+                      Redirigiendo...
+                    </div>
+                  ) : isPending ? (
                     <div className="flex items-center">
                       <div className="w-5 h-5 rounded-full border border-white/30 overflow-hidden mr-2 spin-slow">
                         <Image
