@@ -3,23 +3,21 @@
 import { useState, useTransition } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-interface LoginFormProps {
-  readonly onLoginSuccess: () => void;
-}
-
-export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
+export default function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
-
   const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
+    // Basic validation
     if (!email || !password) {
       setError("Email y contraseña son requeridos");
       return;
@@ -34,10 +32,17 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
       try {
         const { error: signInError } = await signIn(email, password);
 
+        // -> useAuth = { mustChangePassword}
+
+        // mustChangePassword => FormularioCambio
+
         if (signInError) {
-          setError(signInError.message || "Error al iniciar sesión");
-        } else {
-          onLoginSuccess();
+          if (signInError.code === "invalid_credentials") {
+            setError("Email o contraseña incorrectas. Verifica tus datos e intenta nuevamente.");
+          } else {
+            setError(signInError.message || "Error al iniciar sesión");
+          }
+          // Keep fields filled for user to retry
         }
       } catch (err) {
         setError("Error interno. Intenta de nuevo");
