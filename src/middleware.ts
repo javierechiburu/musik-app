@@ -30,10 +30,13 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  // Refresh the session to ensure we have the latest auth state
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
 
+  const user = session?.user || null;
   const pathname = request.nextUrl.pathname;
 
   // Protected API routes
@@ -78,15 +81,9 @@ export async function middleware(request: NextRequest) {
 
   // Redirect unauthenticated users from protected paths
   if (isProtectedPath && !user) {
-    console.log("acaaa");
+    console.log("User not authenticated, redirecting to login");
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return supabaseResponse;
 }
-
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
-};

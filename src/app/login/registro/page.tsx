@@ -2,74 +2,117 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { useAuthStore } from "@/store/authStore";
-import { redirect, useRouter } from "next/navigation";
+import { preRegistroUsuario } from "@/apis/usuariosAPI";
 
-export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function PreRegistroPage() {
+  const [formData, setFormData] = useState({
+    nombreArtista: "",
+    nombreCompleto: "",
+    email: "",
+  });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const { signIn, mustChangePassword } = useAuthStore();
-  const router = useRouter();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess(false);
 
     // Basic validation
-    if (!email || !password) {
-      setError("Email y contraseña son requeridos");
+    if (!formData.nombreArtista || !formData.nombreCompleto || !formData.email) {
+      setError("Todos los campos son requeridos");
       return;
     }
 
-    if (!email.includes("@")) {
+    if (!formData.email.includes("@")) {
       setError("Por favor ingresa un email válido");
       return;
     }
 
     startTransition(async () => {
       try {
-        const { error: signInError, user } = await signIn(email, password);
-
-        if (signInError) {
-          if (signInError.code === "invalid_credentials") {
-            setError(
-              "Email o contraseña incorrectas. Verifica tus datos e intenta nuevamente."
-            );
-          } else {
-            setError(signInError.message || "Error al iniciar sesión");
-          }
-          return; // Stop here if there's an error
-        }
-
-        // Login successful - handle redirection
-        console.log(
-          "Login successful, checking mustChangePassword:",
-          mustChangePassword
-        );
-
-        console.log("Login successful, checking mustChangePassword:", user);
-
-        // Small delay to ensure cookies are set
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        if (!user) {
-          return;
-        }
-        if (user && !user?.must_change_password && user.verified) {
-          alert("acaa");
-          // Redirect to user password form
-          window.location.href = "/home";
+        const result = await preRegistroUsuario(formData);
+        
+        if (result.success) {
+          setSuccess(true);
+          setFormData({
+            nombreArtista: "",
+            nombreCompleto: "",
+            email: "",
+          });
         } else {
-          router.replace("/login/change-password");
+          setError(result.message || "Error al registrar usuario");
         }
       } catch (err) {
         setError("Error interno. Intenta de nuevo");
-        console.error("Login error:", err);
+        console.error("Pre-registro error:", err);
       }
     });
   };
+
+  if (success) {
+    return (
+      <div className="w-full min-h-screen relative overflow-hidden bg-black">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0">
+          <Image
+            src="/FADER-1920X1080.jpg"
+            alt="FADER Records Background"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/60" />
+        </div>
+
+        {/* Success Content */}
+        <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
+          <div className="w-full max-w-md">
+            <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-gray-700/50 text-center">
+              <div className="mb-6 flex justify-center">
+                <Image
+                  src="/FADER_LOGO.svg"
+                  alt="FADER Records Logo"
+                  width={120}
+                  height={48}
+                  className="drop-shadow-lg opacity-90 invert"
+                />
+              </div>
+              
+              <div className="mb-6">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">¡Registro Exitoso!</h2>
+                <p className="text-gray-300">
+                  Tu solicitud de pre-registro ha sido enviada exitosamente. 
+                  Te contactaremos pronto para completar el proceso.
+                </p>
+              </div>
+
+              <a
+                href="/login"
+                className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200"
+              >
+                Volver al Login
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen relative overflow-hidden bg-black">
@@ -82,7 +125,6 @@ export default function LoginForm() {
           className="object-cover"
           priority
         />
-        {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 bg-black/60" />
       </div>
 
@@ -92,7 +134,6 @@ export default function LoginForm() {
         <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12">
           <div className="max-w-md text-center">
             <div className="mb-8">
-              {/* Logo */}
               <div className="mb-6 flex justify-center">
                 <Image
                   src="/FADER_LOGO.svg"
@@ -107,13 +148,13 @@ export default function LoginForm() {
               </h2>
             </div>
             <p className="text-lg text-gray-300 leading-relaxed drop-shadow-md">
-              Tu plataforma de gestión musical profesional. Accede a métricas,
-              analytics y herramientas para impulsar tu carrera artística.
+              Únete a nuestra plataforma de gestión musical profesional. 
+              Solicita tu acceso y comienza a impulsar tu carrera artística.
             </p>
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
+        {/* Right Side - Pre-Registration Form */}
         <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
           <div className="w-full max-w-md">
             {/* Mobile Logo */}
@@ -132,7 +173,7 @@ export default function LoginForm() {
               </h2>
             </div>
 
-            {/* Login Card */}
+            {/* Registration Card */}
             <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-gray-700/50">
               {/* Header */}
               <div className="text-center mb-8">
@@ -145,11 +186,54 @@ export default function LoginForm() {
                     className="drop-shadow-lg opacity-90 invert"
                   />
                 </div>
-                <p className="text-gray-400">Accede a tu panel de control</p>
+                <h1 className="text-xl font-semibold text-white mb-2">Pre-registro</h1>
+                <p className="text-gray-400">Solicita tu acceso a la plataforma</p>
               </div>
 
-              {/* Login Form */}
+              {/* Registration Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Nombre Artístico */}
+                <div>
+                  <label
+                    htmlFor="nombreArtista"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Nombre Artístico
+                  </label>
+                  <input
+                    type="text"
+                    id="nombreArtista"
+                    name="nombreArtista"
+                    value={formData.nombreArtista}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-800/80 text-white placeholder-gray-400 transition-all"
+                    placeholder="Tu nombre artístico"
+                    required
+                    disabled={isPending}
+                  />
+                </div>
+
+                {/* Nombre Completo */}
+                <div>
+                  <label
+                    htmlFor="nombreCompleto"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
+                    Nombre Completo
+                  </label>
+                  <input
+                    type="text"
+                    id="nombreCompleto"
+                    name="nombreCompleto"
+                    value={formData.nombreCompleto}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-800/80 text-white placeholder-gray-400 transition-all"
+                    placeholder="Tu nombre completo"
+                    required
+                    disabled={isPending}
+                  />
+                </div>
+
                 {/* Email */}
                 <div>
                   <label
@@ -161,34 +245,14 @@ export default function LoginForm() {
                   <input
                     type="email"
                     id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-800/80 text-white placeholder-gray-400 transition-all"
                     placeholder="tu@email.com"
                     required
                     disabled={isPending}
                     autoComplete="email"
-                  />
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-300 mb-2"
-                  >
-                    Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-800/80 text-white placeholder-gray-400 transition-all"
-                    placeholder="••••••••"
-                    required
-                    disabled={isPending}
-                    autoComplete="current-password"
                   />
                 </div>
 
@@ -216,32 +280,23 @@ export default function LoginForm() {
                           className="w-full h-full object-cover rounded-full"
                         />
                       </div>
-                      Iniciando sesión...
+                      Registrando...
                     </div>
                   ) : (
-                    "Iniciar Sesión"
+                    "Solicitar Acceso"
                   )}
                 </button>
               </form>
 
               {/* Footer */}
-              <div className="mt-6 text-center space-y-2">
+              <div className="mt-6 text-center">
                 <p className="text-sm text-gray-400">
-                  ¿No tienes una cuenta?{" "}
+                  ¿Ya tienes una cuenta?{" "}
                   <a
-                    href="/login/registro"
+                    href="/login"
                     className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
                   >
-                    Solicita acceso
-                  </a>
-                </p>
-                <p className="text-sm text-gray-400">
-                  ¿Necesitas ayuda?{" "}
-                  <a
-                    href="#"
-                    className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
-                  >
-                    Contacta soporte
+                    Inicia sesión
                   </a>
                 </p>
               </div>

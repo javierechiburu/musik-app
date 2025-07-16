@@ -38,7 +38,9 @@ export async function POST(request: NextRequest) {
 
     // Subir imagen de cédula
     if (cedulaFile && cedulaFile.size > 0) {
-      const fileName = `${user.id}_cedula_${Date.now()}.${cedulaFile.name.split(".").pop()}`;
+      const fileName = `${user.id}_cedula_${Date.now()}.${cedulaFile.name
+        .split(".")
+        .pop()}`;
       const buffer = Buffer.from(await cedulaFile.arrayBuffer());
 
       console.log("📤 Subiendo cédula con fileName:", fileName);
@@ -63,8 +65,11 @@ export async function POST(request: NextRequest) {
       const { data: verifyData, error: verifyError } = await supabase.storage
         .from("verificacion")
         .list("", { search: fileName });
-      
-      console.log("🔍 Verificación archivo subido:", { verifyData, verifyError });
+
+      console.log("🔍 Verificación archivo subido:", {
+        verifyData,
+        verifyError,
+      });
 
       // Guardar solo el path, no la URL pública
       img_cedula = cedulaData.path;
@@ -73,7 +78,9 @@ export async function POST(request: NextRequest) {
 
     // Subir imagen de selfie
     if (selfieFile && selfieFile.size > 0) {
-      const fileName = `${user.id}_selfie_${Date.now()}.${selfieFile.name.split(".").pop()}`;
+      const fileName = `${user.id}_selfie_${Date.now()}.${selfieFile.name
+        .split(".")
+        .pop()}`;
       const buffer = Buffer.from(await selfieFile.arrayBuffer());
 
       console.log("📤 Subiendo selfie con fileName:", fileName);
@@ -98,48 +105,120 @@ export async function POST(request: NextRequest) {
       const { data: verifyData, error: verifyError } = await supabase.storage
         .from("verificacion")
         .list("", { search: fileName });
-      
-      console.log("🔍 Verificación archivo subido:", { verifyData, verifyError });
+
+      console.log("🔍 Verificación archivo subido:", {
+        verifyData,
+        verifyError,
+      });
 
       // Guardar solo el path, no la URL pública
       img_selfie = selfieData.path;
       console.log("✅ Path de selfie guardado:", img_selfie);
     }
 
-    // Insertar en la tabla
-
-    console.log(user.id);
-    const { data, error: insertError } = await supabase
+    // Buscar si ya existe una cuenta bancaria para este usuario
+    console.log("🔍 Buscando cuenta existente para usuario:", user.id);
+    const { data: existingAccount, error: existingError } = await supabase
       .from("cuentas_bancarias")
-      .insert({
-        usuario_id: user.id,
-        titular,
-        rut,
-        banco,
-        tipo_cuenta,
-        numero_cuenta,
-        img_cedula,
-        img_selfie,
-        cuenta_verificada: false,
-      })
-      .select()
+      .select("*")
+      .eq("usuario_id", user.id)
       .single();
 
-    if (insertError) {
-      console.error("Error al insertar cuenta bancaria:", insertError);
+    console.log("📊 Resultado búsqueda cuenta existente:", {
+      existingAccount,
+      existingError,
+    });
+
+    if (existingError && existingError.code !== "PGRST116") {
+      console.error(
+        "Error al buscar cuenta bancaria existente:",
+        existingError
+      );
       return NextResponse.json(
         {
-          error: "Error al registrar cuenta bancaria",
-          details: insertError.message,
+          error: "Error al verificar cuenta bancaria existente",
+          details: existingError.message,
         },
         { status: 500 }
       );
     }
 
+    let data;
+    let operation;
+
+    if (existingAccount) {
+      // Si existe, actualizamos el registro
+      operation = "actualizada";
+      console.log(
+        "🔄 Actualizando cuenta existente con ID:",
+        existingAccount.id
+      );
+      const { data: updateData, error: updateError } = await supabase
+        .from("cuentas_bancarias")
+        .update({
+          titular,
+          rut,
+          banco,
+          tipo_cuenta,
+          numero_cuenta,
+          img_cedula: img_cedula || existingAccount.img_cedula,
+          img_selfie: img_selfie || existingAccount.img_selfie,
+          cuenta_verificada: false, // Reset verification status when updating
+        })
+        .eq("id", existingAccount.id) // Usar el ID en lugar del usuario_id
+        .select()
+        .single();
+
+      console.log("📊 Resultado actualización:", { updateData, updateError });
+
+      if (updateError) {
+        console.error("Error al actualizar cuenta bancaria:", updateError);
+        return NextResponse.json(
+          {
+            error: "Error al actualizar cuenta bancaria",
+            details: updateError.message,
+          },
+          { status: 500 }
+        );
+      }
+      data = updateData;
+    } else {
+      // Si no existe, creamos un nuevo registro
+      operation = "registrada";
+      const { data: insertData, error: insertError } = await supabase
+        .from("cuentas_bancarias")
+        .insert({
+          usuario_id: user.id,
+          titular,
+          rut,
+          banco,
+          tipo_cuenta,
+          numero_cuenta,
+          img_cedula,
+          img_selfie,
+          cuenta_verificada: false,
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("Error al insertar cuenta bancaria:", insertError);
+        return NextResponse.json(
+          {
+            error: "Error al registrar cuenta bancaria",
+            details: insertError.message,
+          },
+          { status: 500 }
+        );
+      }
+      data = insertData;
+    }
+
     return NextResponse.json({
       success: true,
       data,
-      message: "Cuenta bancaria registrada correctamente",
+      message: `Cuenta bancaria ${operation} correctamente`,
+      operation,
     });
   } catch (error) {
     console.error("Error en API cuenta-bancaria:", error);

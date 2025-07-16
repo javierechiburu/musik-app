@@ -11,82 +11,88 @@ export interface Database {
     Tables: {
       usuario: {
         Row: {
-          id: number;
+          id: string;
           auth_id: string;
-          nombre: string;
-          apellido: string;
+          username: string;
+          fullname: string;
           email: string;
           role: string;
           created_at: string;
-          updated_at: string;
+          update_at: string;
           must_change_password: boolean;
+          verified: boolean;
+          chartmetric_id: number | null;
         };
         Insert: {
-          id?: number;
+          id?: string;
           auth_id: string;
-          nombre: string;
-          apellido: string;
+          username: string;
+          fullname: string;
           email: string;
           role?: string;
           created_at?: string;
-          updated_at?: string;
+          update_at?: string;
           must_change_password?: boolean;
+          verified?: boolean;
+          chartmetric_id?: number | null;
         };
         Update: {
-          id?: number;
+          id?: string;
           auth_id?: string;
-          nombre?: string;
-          apellido?: string;
+          username?: string;
+          fullname?: string;
           email?: string;
           role?: string;
           created_at?: string;
-          updated_at?: string;
+          update_at?: string;
           must_change_password?: boolean;
+          verified?: boolean;
+          chartmetric_id?: number | null;
         };
         Relationships: [];
       };
       cuentas_bancarias: {
         Row: {
-          id: number;
-          usuario_id: string;
-          titular: string;
-          rut: string;
-          banco: string;
-          tipo_cuenta: string;
-          numero_cuenta: string;
-          cuenta_verificada: boolean;
+          id: string;
+          usuario_id: string | null;
+          titular: string | null;
+          rut: string | null;
+          banco: string | null;
+          tipo_cuenta: string | null;
+          numero_cuenta: string | null;
           img_cedula: string | null;
           img_selfie: string | null;
-          created_at: string | null;
-          updated_at: string | null;
+          cuenta_verificada: boolean | null;
+          creado_en: string | null;
+          monto_billetera: number | null;
         };
         Insert: {
-          id?: number;
-          usuario_id: string;
-          titular: string;
-          rut: string;
-          banco: string;
-          tipo_cuenta: string;
-          numero_cuenta: string;
-          cuenta_verificada?: boolean;
+          id?: string;
+          usuario_id?: string | null;
+          titular?: string | null;
+          rut?: string | null;
+          banco?: string | null;
+          tipo_cuenta?: string | null;
+          numero_cuenta?: string | null;
           img_cedula?: string | null;
           img_selfie?: string | null;
-          created_at?: string | null;
-          updated_at?: string | null;
+          cuenta_verificada?: boolean | null;
+          creado_en?: string | null;
+          monto_billetera?: number | null;
         };
         Update: {
-          id?: number;
-          usuario_id?: string;
-          titular?: string;
-          rut?: string;
-          banco?: string;
-          tipo_cuenta?: string;
-          numero_cuenta?: string;
-          cuenta_verificada?: boolean;
+          id?: string;
+          usuario_id?: string | null;
+          titular?: string | null;
+          rut?: string | null;
+          banco?: string | null;
+          tipo_cuenta?: string | null;
+          numero_cuenta?: string | null;
           img_cedula?: string | null;
           img_selfie?: string | null;
-          created_at?: string | null;
-          updated_at?: string | null;
+          cuenta_verificada?: boolean | null;
+          creado_en?: string | null;
+          monto_billetera?: number | null;
         };
         Relationships: [
           {
@@ -94,7 +100,7 @@ export interface Database {
             columns: ["usuario_id"];
             referencedRelation: "usuario";
             referencedColumns: ["id"];
-          },
+          }
         ];
       };
     };

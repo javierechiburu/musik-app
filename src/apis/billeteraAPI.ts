@@ -212,6 +212,28 @@ export const registerBankAccount = async (accountData: BankAccountData) => {
   }
 };
 
+// Función para obtener cuenta bancaria del usuario
+export const fetchUserBankAccount = async () => {
+  try {
+    const response = await axiosInstance.get("/api/cuenta-bancaria");
+    return response.data.data || null;
+  } catch (error: any) {
+    console.error("Error al obtener cuenta bancaria:", error);
+    
+    if (error.response?.status === 404 || error.response?.data?.error?.includes("no encontrado")) {
+      return null; // No hay cuenta bancaria registrada
+    }
+    
+    if (error.response) {
+      throw new Error(error.response.data.error || "Error al obtener cuenta bancaria");
+    } else if (error.request) {
+      throw new Error("Error de conexión");
+    } else {
+      throw new Error("Error inesperado");
+    }
+  }
+};
+
 // Función principal para procesar registro de cuenta bancaria con imágenes
 export const processBankAccountRegistration = async (
   formData: Omit<BankAccountData, "img_cedula" | "img_selfie">,

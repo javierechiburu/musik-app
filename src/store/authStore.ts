@@ -22,13 +22,13 @@ interface AuthState {
   signIn: (
     email: string,
     password: string
-  ) => Promise<{ error: AuthError | null }>;
+  ) => Promise<{ error: AuthError | null; user: UserProfile | null }>;
   signOut: () => Promise<void>;
   setUser: (user: User | null) => void;
   setUserProfile: (profile: UserProfile | null) => void;
   setLoading: (loading: boolean) => void;
   initialize: () => Promise<void>;
-  refreshUserProfile: () => Promise<void>;
+  refreshUserProfile: () => Promise<{ profile: UserProfile | null }>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -84,7 +84,7 @@ export const useAuthStore = create<AuthState>()(
 
           if (error) {
             set({ isLoading: false });
-            return { error };
+            return { error, user: null };
           }
 
           if (data.user) {
@@ -95,19 +95,30 @@ export const useAuthStore = create<AuthState>()(
             });
 
             // Load profile and wait for it to complete
-            await get().refreshUserProfile();
+            const user = await get().refreshUserProfile();
 
             // Now mark as authenticated after profile is loaded
-            set({
+            set((state) => ({
+              ...state,
               isAuthenticated: true,
               isLoading: false,
-            });
+            }));
+
+            console.log("aaaaaaaaaaaaa", user.profile);
+
+            if (user.profile && user.profile.verified === true) {
+              return { error: null, user: user.profile };
+            } else {
+              set({ isAuthenticated: false, isLoading: false });
+              await supabase.auth.signOut();
+              return { error: null, user: null };
+            }
           }
 
-          return { error: null };
+          return { error: null, user: null };
         } catch (error) {
           set({ isLoading: false });
-          return { error: error as AuthError };
+          return { error: error as AuthError, user: null };
         }
       },
 
@@ -133,7 +144,7 @@ export const useAuthStore = create<AuthState>()(
 
       refreshUserProfile: async () => {
         const { user, isLoadingProfile } = get();
-        if (!user || isLoadingProfile) return;
+        if (!user || isLoadingProfile) return { profile: null };
 
         set({ isLoadingProfile: true });
         const supabase = createClient();
@@ -148,15 +159,19 @@ export const useAuthStore = create<AuthState>()(
 
           if (error) {
             console.error("Error fetching user profile:", error);
-            return;
+            return { profile: null };
           }
 
           console.log("Profile loaded:", profile);
           get().setUserProfile(profile);
+          set((state) => ({
+            ...state,
+            isLoadingProfile: false,
+          }));
+          return { profile };
         } catch (error) {
           console.error("Error refreshing user profile:", error);
-        } finally {
-          set({ isLoadingProfile: false });
+          return { profile: null };
         }
       },
 
@@ -180,10 +195,11 @@ export const useAuthStore = create<AuthState>()(
             // Load profile and then mark as authenticated
             await get().refreshUserProfile();
 
-            set({
+            set((state) => ({
+              ...state,
               isAuthenticated: true,
               isLoading: false,
-            });
+            }));
           } else {
             get().setUser(null);
           }
@@ -205,7 +221,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       partialize: (state) => ({
-        // Only persist non-sensitive data
+        user: state.user,
         userProfile: state.userProfile,
         isAuthenticated: state.isAuthenticated,
         isAdmin: state.isAdmin,

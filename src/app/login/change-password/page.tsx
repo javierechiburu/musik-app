@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/authStore";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 
-export default function PasswordChangeForm() {
+export default function ChangePasswordPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordsMatch, setPasswordsMatch] = useState(false);

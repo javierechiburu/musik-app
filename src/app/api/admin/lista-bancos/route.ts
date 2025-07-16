@@ -167,7 +167,7 @@ export async function PATCH(request: NextRequest) {
     const { data, error } = await supabase
       .from("cuentas_bancarias")
       .update({ cuenta_verificada })
-      .eq("id", Number(accountId))
+      .eq("id", accountId)
       .select()
       .single();
 
@@ -182,7 +182,9 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data,
-      message: `Cuenta ${cuenta_verificada ? "verificada" : "marcada como no verificada"} correctamente`,
+      message: `Cuenta ${
+        cuenta_verificada ? "verificada" : "marcada como no verificada"
+      } correctamente`,
     });
   } catch (error) {
     console.error("Error en API lista-bancos PATCH:", error);
@@ -218,7 +220,7 @@ export async function DELETE(request: NextRequest) {
     const { data: account, error: getError } = await supabase
       .from("cuentas_bancarias")
       .select("img_cedula, img_selfie")
-      .eq("id", Number(accountId))
+      .eq("id", accountId)
       .single();
 
     if (getError) {
@@ -233,7 +235,7 @@ export async function DELETE(request: NextRequest) {
     const { error: deleteError } = await supabase
       .from("cuentas_bancarias")
       .delete()
-      .eq("id", Number(accountId));
+      .eq("id", accountId);
 
     if (deleteError) {
       console.error("Error al eliminar cuenta:", deleteError);

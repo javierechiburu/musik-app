@@ -1,29 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import { redirect, useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
 import LoginForm from "@/components/login/LoginForm";
 import PasswordChangeForm from "@/components/login/PasswordChangeForm";
+import { useAuthStore } from "@/store/authStore";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { isLoading, isAuthenticated, mustChangePassword } = useAuth();
+  const { isLoading, isAuthenticated, mustChangePassword } = useAuthStore();
   // isLoading false, isAuthenticated false, mustChangePassword false
-  console.log('🔑 isLoading:', isLoading);
-  console.log('🔑 isAuthenticated:', isAuthenticated);
-  console.log('🔑 mustChangePassword:', mustChangePassword);
-
-/*   useEffect(() => {
-    if (isLoading === false && isAuthenticated === true && mustChangePassword === false) {
-      redirect("/home")
-    }
-  }, [isLoading, isAuthenticated, mustChangePassword]); */
-
-  // Show password change form if required
-  if (isAuthenticated && mustChangePassword) {
-    return <PasswordChangeForm />;
-  }
+  console.log("🔑 isLoading:", isLoading);
+  console.log("🔑 isAuthenticated:", isAuthenticated);
+  console.log("🔑 mustChangePassword:", mustChangePassword);
 
   // Show login form for non-authenticated users
   return <LoginForm />;
