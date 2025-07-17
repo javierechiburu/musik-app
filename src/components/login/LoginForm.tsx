@@ -58,7 +58,7 @@ export default function LoginForm() {
           return;
         }
         if (user && !user?.must_change_password && user.verified) {
-          alert("acaa");
+          /* alert("acaa"); */
           // Redirect to user password form
           window.location.href = "/home";
         } else {

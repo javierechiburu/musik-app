@@ -184,8 +184,7 @@ export default function NuevosUsuariosPage() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Usuario</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Fecha Solicitud</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Estado</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Acciones</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Verificación</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-700 relative">
@@ -210,46 +209,38 @@ export default function NuevosUsuariosPage() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-300">{formatearFecha(usuario.created_at)}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`
-                          inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-all duration-300
-                          ${isSuccessAnimating || isSliding
-                                ? "bg-green-200 text-green-900 font-bold animate-pulse"
-                                : isVerifying && !isSliding
-                                  ? "bg-green-200 text-green-900 animate-pulse"
-                                  : usuario.verified
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-yellow-100 text-yellow-800"
-                              }
-                        `}>
-                              {(isSuccessAnimating || isSliding)
-                                ? "VERIFICADO"
-                                : isVerifying && !isSliding
-                                  ? "Verificando..."
-                                  : usuario.verified
-                                    ? "Verificado"
-                                    : "No Verificado"
-                              }
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
                             {usuario.verified ? (
-                              <span className="text-gray-400">-</span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <svg className="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Verificado
+                              </span>
                             ) : (
                               <button
                                 onClick={() => handleVerificarUsuario(usuario.id)}
                                 disabled={verifyingUserId === usuario.id}
                                 className={`
-                              inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md 
+                              inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md 
                               transition-all duration-200 transform
-                              ${isVerifying
+                              ${(isSuccessAnimating || isSliding)
                                     ? 'bg-green-500 text-white scale-105 shadow-lg shadow-green-500/25'
-                                    : 'bg-green-600 hover:bg-green-700 hover:scale-105 text-white'
+                                    : isVerifying
+                                      ? 'bg-green-500 text-white scale-105 shadow-lg shadow-green-500/25'
+                                      : 'bg-green-600 hover:bg-green-700 hover:scale-105 text-white'
                                   }
                               disabled:opacity-50 disabled:cursor-not-allowed
                             `}
                               >
-                                {verifyingUserId === usuario.id ? (
+                                {(isSuccessAnimating || isSliding) ? (
+                                  <>
+                                    <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    VERIFICADO
+                                  </>
+                                ) : verifyingUserId === usuario.id ? (
                                   <>
                                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -262,7 +253,7 @@ export default function NuevosUsuariosPage() {
                                     <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    Verificar
+                                    Verificar Usuario
                                   </>
                                 )}
                               </button>
@@ -287,7 +278,42 @@ export default function NuevosUsuariosPage() {
           )}
         </div>
       </div>
-      {/* Modales... (sin cambios) */}
+      {/* Modal de Error */}
+      {showErrorModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-red-500/30">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="flex-shrink-0">
+                <svg
+                  className="w-8 h-8 text-red-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-red-400">Error</h3>
+                <p className="text-gray-300 text-sm mt-1">{modalMessage}</p>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowErrorModal(false)}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
