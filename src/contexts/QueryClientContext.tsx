@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
+import AuthInitializer from "@/components/AuthInitializer";
 
 interface QueryClientProviderWrapperProps {
   readonly children: ReactNode;
@@ -24,6 +25,9 @@ export function QueryClientProviderWrapper({
   );
 
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthInitializer />
+      {children}
+    </QueryClientProvider>
   );
 }

@@ -1,17 +1,44 @@
 import { axiosInstance } from "@/config/axios/axiosInstance";
 
 // Función para limpiar sesión y redirigir al login
-const clearSessionAndRedirect = () => {
+const clearSessionAndRedirect = async () => {
   try {
-    // Limpiar cookies
+    console.log("🧹 Limpiando sesión completa...");
+    
+    // Limpiar authStore
+    try {
+      const { useAuthStore } = await import("@/store/authStore");
+      const { signOut } = useAuthStore.getState();
+      await signOut();
+    } catch (storeError) {
+      console.warn("Error clearing authStore:", storeError);
+    }
+    
+    // Limpiar cookies de token
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    
+    // Limpiar cookies de Supabase
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (supabaseUrl) {
+      const domain = supabaseUrl.split("://")[1];
+      document.cookie = `sb-${domain}-auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    }
     
     // Limpiar localStorage
     localStorage.removeItem("logged_in_user_role");
+    localStorage.removeItem("auth-storage");
+    
+    // Limpiar todos los items de Supabase en localStorage
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith("sb-") && key.includes("auth")) {
+        localStorage.removeItem(key);
+      }
+    });
     
     // Limpiar sessionStorage
     sessionStorage.clear();
     
+    console.log("✅ Sesión limpiada, redirigiendo al login");
     // Redirigir al login
     window.location.href = "/login";
   } catch (error) {
@@ -38,13 +65,18 @@ axiosInstance.interceptors.response.use(
       if (!originalRequest._retry) {
         originalRequest._retry = true;
         
-        // Intentar refrescar token desde Supabase
+        // Intentar refrescar token desde Supabase usando cliente centralizado
         try {
-          const { createClient } = await import('@supabase/supabase-js');
-          const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-          );
+          const { createClient } = await import('@/lib/supabase/client');
+          const supabase = createClient();
+          
+          // Primero validar que el usuario sea auténtico
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (userError || !user) {
+            console.warn('Usuario no válido durante refresh:', userError?.message);
+            throw new Error('Invalid user');
+          }
           
           const { data: { session } } = await supabase.auth.getSession();
           

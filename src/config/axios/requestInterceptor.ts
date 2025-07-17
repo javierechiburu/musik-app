@@ -11,26 +11,38 @@ const getTokenFromCookies = (): string | null => {
   return cookieToken ? cookieToken.split("=")[1] : null;
 };
 
-// Función para obtener token desde Supabase
+// Función para obtener token desde Supabase usando el cliente existente
 const getTokenFromSupabase = async (): Promise<string | null> => {
   try {
     console.log("🔍 Intentando obtener token desde Supabase...");
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    
+    // Usar el createClient centralizado en lugar de crear uno nuevo
+    const { createClient } = await import("@/lib/supabase/client");
+    const supabase = createClient();
 
+    // Usar getUser() en lugar de getSession() para validación segura
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.log("⚠️ Usuario no válido o no autenticado:", userError?.message);
+      return null;
+    }
+
+    // Si el usuario es válido, obtener la sesión
     const {
       data: { session },
-      error,
+      error: sessionError,
     } = await supabase.auth.getSession();
-    console.log("📋 Sesión de Supabase:", {
+
+    console.log("📋 Estado de autenticación:", {
+      hasUser: !!user,
       hasSession: !!session,
-      hasUser: !!session?.user,
-      userEmail: session?.user?.email || "N/A",
+      userEmail: user?.email || "N/A",
       hasToken: !!session?.access_token,
-      error: error?.message || "N/A",
+      sessionError: sessionError?.message || "N/A",
     });
 
     return session?.access_token || null;
