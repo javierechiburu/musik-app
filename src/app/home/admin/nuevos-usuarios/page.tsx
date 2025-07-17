@@ -30,8 +30,7 @@ export default function NuevosUsuariosPage() {
     error,
   } = useQuery({
     queryKey: ["nuevos-usuarios"],
-    queryFn: obtenerNuevosUsuarios,
-    refetchInterval: 30000,
+    queryFn: obtenerNuevosUsuarios
   });
 
   // Estado local para manejar la lista de usuarios
