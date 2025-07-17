@@ -425,12 +425,52 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Actualizar el usuario: verified = true, must_change_password = true
+    // 3. Generar contraseña temporal
+    function generateTempPassword(): string {
+      const adjectives = ["Rápido", "Fuerte", "Brillante", "Nuevo", "Seguro"];
+      const nouns = ["León", "Águila", "Roca", "Sol", "Mar"];
+      const numbers = Math.floor(Math.random() * 999) + 100;
+
+      const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const noun = nouns[Math.floor(Math.random() * nouns.length)];
+
+      return `${adjective}${noun}${numbers}`;
+    }
+
+    const tempPassword = generateTempPassword();
+    console.log("🔐 Contraseña temporal generada:", tempPassword);
+
+    // 4. Crear usuario en Supabase Auth
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: existingUser.email,
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: {
+        username: existingUser.username,
+        fullname: existingUser.fullname,
+        role: "user",
+        must_change_password: true,
+        verified: true
+      }
+    });
+
+    if (authError || !authUser?.user) {
+      console.error("❌ Error creando usuario en Auth:", authError);
+      return NextResponse.json(
+        { error: authError?.message || "Error creando usuario en Auth" },
+        { status: 500 }
+      );
+    }
+
+    console.log("✅ Usuario creado en Auth:", authUser.user.id);
+
+    // 5. Actualizar el usuario en la tabla: verified = true, must_change_password = true, auth_id actualizado
     const { error: updateError } = await supabaseAdmin
       .from("usuario")
       .update({
         verified: true,
         must_change_password: true,
+        auth_id: authUser.user.id,
         update_at: new Date().toISOString(),
       })
       .eq("id", usuarioId);
@@ -443,28 +483,71 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("✅ Usuario actualizado correctamente");
+    console.log("✅ Usuario actualizado correctamente con auth_id:", authUser.user.id);
 
-    // 4. Enviar correo de confirmación
+    // 6. Enviar correo de confirmación con contraseña temporal
     try {
       const emailContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">🎉 ¡Tu cuenta ha sido verificada!</h2>
-          <p>Hola <strong>${existingUser.fullname}</strong>,</p>
-          <p>Tu cuenta ha sido verificada por un administrador y ya puedes iniciar sesión en la plataforma.</p>
-          <p><strong>Email:</strong> ${existingUser.email}</p>
-          <p>Recuerda que debes cambiar tu contraseña en tu primer inicio de sesión.</p>
-          <div style="margin-top: 20px;">
-            <a href="${process.env.NEXT_PUBLIC_SITE_URL}/login" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">Iniciar Sesión</a>
+          <h2 style="color: #333; border-bottom: 2px solid #28a745; padding-bottom: 10px;">
+            ¡Cuenta Verificada y Activada!
+          </h2>
+          <p><strong>Fecha:</strong> ${new Date().toLocaleString("es-ES")}</p>
+          
+          <div style="background-color: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+            <h3 style="color: #155724; margin-top: 0;">🎉 ¡Bienvenido a Musik App!</h3>
+            <p style="color: #155724;">
+              Tu cuenta ha sido verificada y activada exitosamente por el administrador. 
+              Ya puedes iniciar sesión en la plataforma.
+            </p>
           </div>
-          <p style="font-size: 13px; color: #777; margin-top: 30px;">Este mensaje fue generado automáticamente. Si tienes dudas, contacta al equipo de soporte.</p>
+          
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #495057; margin-top: 0;">Información de tu Cuenta:</h3>
+            <p><strong>Nombre:</strong> ${existingUser.fullname}</p>
+            <p><strong>Nombre Artístico:</strong> ${existingUser.username}</p>
+            <p><strong>Email:</strong> ${existingUser.email}</p>
+          </div>
+          
+          <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <h3 style="color: #856404; margin-top: 0;">Credenciales de Acceso:</h3>
+            <p><strong>Usuario:</strong> ${existingUser.email}</p>
+            <p><strong>Contraseña:</strong> <code style="background-color: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${tempPassword}</code></p>
+            <p style="font-size: 12px; color: #6c757d;">
+              <em>⚠️ Por seguridad, debes cambiar esta contraseña en tu primer inicio de sesión.</em>
+            </p>
+          </div>
+          
+          <div style="background-color: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #0c5460; margin-top: 0;">Próximos Pasos:</h3>
+            <ol style="color: #0c5460; padding-left: 20px;">
+              <li>Inicia sesión en la plataforma con las credenciales proporcionadas</li>
+              <li>Cambia tu contraseña temporal por una nueva y segura</li>
+              <li>Completa tu perfil y configura tu cuenta bancaria</li>
+              <li>¡Comienza a gestionar tu música!</li>
+            </ol>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${
+              process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+            }/login" 
+              style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+              Iniciar Sesión Ahora
+            </a>
+          </div>
+          
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #dee2e6;">
+          <p style="font-size: 14px; color: #6c757d; text-align: center;">
+            <em>Si tienes alguna pregunta o necesitas ayuda, no dudes en contactar al equipo de soporte.</em>
+          </p>
         </div>
       `;
 
       const { error: emailError } = await resend.emails.send({
         from: "onboarding@resend.dev",
         to: [existingUser.email],
-        subject: "🎉 Tu cuenta en Musik App ha sido verificada",
+        subject: "🎉 ¡Tu cuenta en Musik App ha sido verificada!",
         html: emailContent,
       });
 
@@ -485,8 +568,9 @@ export async function POST(req: NextRequest) {
         fullname: existingUser.fullname,
         email: existingUser.email,
         verified: true,
-        authId: existingUser.auth_id,
+        authId: authUser.user.id,
       },
+      tempPassword: tempPassword,
     });
   } catch (error: any) {
     console.error("Error inesperado en POST /api/admin/nuevos-usuarios:", error);
