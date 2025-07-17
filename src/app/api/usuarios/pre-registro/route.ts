@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -26,8 +25,7 @@ export async function POST(req: NextRequest) {
     );
 
     const body = await req.json();
-    const { username, fullname, email, role, must_change_password, verified } =
-      body as PreRegistroData;
+    const { username, fullname, email } = body as PreRegistroData;
 
     console.log("📥 Payload recibido:", body);
 
