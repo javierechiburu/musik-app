@@ -47,6 +47,13 @@ export default function ChangePasswordPage() {
       try {
         // Usar la instancia de Supabase del store
         const supabase = createClient();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError || !user) {
+          setError("Error: No se pudo autenticar el usuario");
+          return;
+        }
+        
         const {
           data: { session },
         } = await supabase.auth.getSession();

@@ -30,13 +30,11 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh the session to ensure we have the latest auth state
+  // Get the authenticated user to ensure we have the latest auth state
   const {
-    data: { session },
+    data: { user },
     error,
-  } = await supabase.auth.getSession();
-
-  const user = session?.user || null;
+  } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
   // Protected API routes

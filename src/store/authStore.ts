@@ -230,26 +230,17 @@ export const useAuthStore = create<AuthState>()(
           }
 
           const {
-            data: { session },
-            error: sessionError,
-          } = await supabase.auth.getSession();
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
 
-          if (sessionError) {
-            console.error("❌ Session error:", sessionError);
+          if (userError) {
+            console.error("❌ User error:", userError);
             get().setUser(null);
             return;
           }
 
-          if (session) {
-            // Always use getUser() to securely validate the session
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
-            
-            if (userError || !user) {
-              console.warn("⚠️ Session validation failed, clearing session:", userError?.message);
-              await supabase.auth.signOut();
-              get().setUser(null);
-              return;
-            }
+          if (user) {
 
             set({ user: user, isLoading: true });
             const profileResult = await get().refreshUserProfile();

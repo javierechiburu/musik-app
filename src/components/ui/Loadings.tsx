@@ -24,3 +24,23 @@ export const LoadingSpinner = () => {
     </div>
   );
 };
+
+export const LoadingChatBubble = () => {
+  return (
+    <div className="flex items-start px-4 py-2 animate-pulse">
+      {/* Avatar del bot */}
+      <div className="w-8 h-8 rounded-full bg-[#A78BFA] flex items-center justify-center text-white font-bold mr-3">
+        🤖
+      </div>
+
+      {/* Burbuja de mensaje "typing" */}
+      <div className="bg-[#F3F4F6] dark:bg-[#2D2D2D] rounded-xl px-4 py-2 max-w-xs shadow-md">
+        <div className="flex space-x-1 justify-center items-center h-5">
+          <span className="w-2 h-2 bg-[#A78BFA] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+          <span className="w-2 h-2 bg-[#A78BFA] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+          <span className="w-2 h-2 bg-[#A78BFA] rounded-full animate-bounce"></span>
+        </div>
+      </div>
+    </div>
+  );
+};
